@@ -55,4 +55,5 @@ while 1:
             print("{}".format(topic[mesh.getNodeID(header.from_node)][header.type]))
             mqttc.publish(topic[mesh.getNodeID(header.from_node)][header.type], data)
             mqttc.loop(2)
+            
     mqttc.loop_stop()
