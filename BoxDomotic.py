@@ -19,8 +19,7 @@ mqttHost = "127.0.0.1"
 topic = [['data/RF24/Node0Lux', 'data/RF24/Node0Tra'], ['data/RF24/Node1Lux', 'data/RF24/Node1Tra']]
 #data = 24
 
-# radio setup for RPi B Rev2: CS0=Pin 24
-#radio = RF24(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ)
+# radio setup for RPi B Rev2: CS0=Pin 25
 radio = RF24(25,0)
 network = RF24Network(radio)
 mesh = RF24Mesh(radio, network)
