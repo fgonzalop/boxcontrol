@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import paho.mqtt.client as mqtt
+import json 
 
 from RF24 import *
 from RF24Network import *
@@ -16,6 +17,11 @@ def on_message(client, userdata, message):
     
     
 mqttHost = "127.0.0.1"
+
+# Opening JSON file with the information of the network
+with open('BoxDomotic.json') as json_file: 
+    aJsonNetwork = json.load(json_file)
+    
 topic = [['data/RF24/Node0Lux', 'data/RF24/Node0Tra'], ['data/RF24/Node1Lux', 'data/RF24/Node1Tra']]
 #data = 24
 
@@ -52,8 +58,9 @@ while 1:
             
 
             data = unpack("L",payload)[0]
-            print("{}".format(topic[mesh.getNodeID(header.from_node)][header.type]))
-            mqttc.publish(topic[mesh.getNodeID(header.from_node)][header.type], data)
+            print("{}".format(aJsonNetwork[str(mesh.getNodeID(header.from_node))][0]['nombre']))
+            mqttc.publish(aJsonNetwork[str(mesh.getNodeID(header.from_node))][0]['nombre'], data)
+            #mqttc.publish(topic[mesh.getNodeID(header.from_node)][header.type], data)
             mqttc.loop(2)
             
     mqttc.loop_stop()

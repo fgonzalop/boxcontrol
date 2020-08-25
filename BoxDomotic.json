@@ -1,0 +1,21 @@
+{ 
+"1":[
+    {"nombre":"salon/tra",
+    "id":1,
+    "pub":1,
+    "type":"tra"},
+	{"nombre":"salon/lux",
+    "id":2,
+    "pub":1,
+    "type":"lux"}
+],
+"2":[
+	{"nombre":"cocina/tra",
+    "id":1,
+    "pub":1,
+    "type":"tra"},
+	{"nombre":"cocina/lux",
+    "id":2,
+    "pub":1,
+    "type":"lux"}]
+}
