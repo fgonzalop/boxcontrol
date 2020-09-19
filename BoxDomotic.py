@@ -9,24 +9,23 @@ from RF24Mesh import *
 
 from struct import unpack
 
+# Opening JSON file with the information of the network
+with open('BoxDomotic.json') as json_file: 
+    aJsonNetwork = json.load(json_file)
+
 def on_message(client, userdata, message):
     print("message received " ,str(message.payload.decode("utf-8")))
     print("message topic=",message.topic)
     print("message qos=",message.qos)
     print("message retain flag=",message.retain)
+                
+    #mesh.write(aTemperature, octlit("2"), sizeof(aTemperature))
+    print("end...")
     
     
 mqttHost = "127.0.0.1"
-
-# Opening JSON file with the information of the network
-with open('BoxDomotic.json') as json_file: 
-    aJsonNetwork = json.load(json_file)
     
-topic = [['data/RF24/Node0Lux', 'data/RF24/Node0Tra'], ['data/RF24/Node1Lux', 'data/RF24/Node1Tra']]
-#data = 24
-
-# radio setup for RPi B Rev2: CS0=Pin 24
-#radio = RF24(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ)
+#configuration of RPi
 radio = RF24(25,0)
 network = RF24Network(radio)
 mesh = RF24Mesh(radio, network)
@@ -34,18 +33,23 @@ mesh = RF24Mesh(radio, network)
 mesh.setNodeID(0)
 mesh.begin()
 radio.setPALevel(RF24_PA_MAX) # Power Amplifier
-radio.printDetails()
+#radio.printDetails()
 
 print("Starting BoxDomotic...")
+
+print("Cleaning mesh")
+
 
 mqttc = mqtt.Client()
 mqttc.on_message = on_message;
 mqttc.connect(mqttHost, 1883)
+
 mqttc.subscribe("calefaccion")
+mqttc.subscribe("cocina/tra/ask")
 
 while 1:
-    mesh.update()
     mesh.DHCP()
+    mesh.update()
     mqttc.loop_start()
 
     while network.available():
@@ -58,9 +62,17 @@ while 1:
             
 
             data = unpack("L",payload)[0]
+
             print("{}".format(aJsonNetwork[str(mesh.getNodeID(header.from_node))][0]['nombre']))
             mqttc.publish(aJsonNetwork[str(mesh.getNodeID(header.from_node))][0]['nombre'], data)
-            #mqttc.publish(topic[mesh.getNodeID(header.from_node)][header.type], data)
-            mqttc.loop(2)
+
+            mqttc.loop(1)
             
+            
+            if not network.write(header, payload):
+                # If a write fails, check connectivity to the mesh network
+                print("failed")
+            else:
+                print("Send OK")
+                
     mqttc.loop_stop()
