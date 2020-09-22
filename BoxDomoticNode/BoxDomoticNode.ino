@@ -1,94 +1,207 @@
+/*
+* BoxDomotic Node to communicate with RPI and others
+*/
 
-/** RF24Mesh_Example.ino by TMRh20
- *
- * This example sketch shows how to manually configure a node via RF24Mesh, and send data to the
- * master node.
- * The nodes will refresh their network address as soon as a single write fails. This allows the
- * nodes to change position in relation to each other and the master node.
- */
-
-
-#include "RF24.h"
-#include "RF24Network.h"
-#include "RF24Mesh.h"
-#include <SPI.h>
 #include <EEPROM.h>
-//#include <printf.h>
+#include <SPI.h>
+#include "RF24.h"
+#include "BoxDomoticProtocol.h"
 
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 108 */
+RF24 radio(9,10);
 
-/**** Configure the nrf24l01 CE and CS pins ****/
-RF24 radio(9, 10);
-//RF24 radio(2, 4);
-RF24Network network(radio);
-RF24Mesh mesh(radio, network);
-
-/**
- * User Configuration: nodeID - A unique identifier for each radio. Allows addressing
- * to change dynamically with physical changes to the mesh.
- *
- * In this example, configuration takes place below, prior to uploading the sketch to the device
- * A unique value from 1-255 must be configured for each node.
- * This will be stored in EEPROM on AVR devices, so remains persistent between further uploads, loss of power, etc.
- *
- **/
-//#define nodeID 1
-#define nodeID 1
-#define ID 0
-
-uint32_t displayTimer = 0;
-uint32_t theTemperature = 20;
+int theRadioNumber;
+int isRouter = 1;
 
 struct payload_t {
-  unsigned long ms;
-  unsigned long counter;
+  byte origen;
+  byte messageId;
+  byte action1;
+  byte action2;
+  byte spare;
+  byte hop1;
+  byte hop2;
+  byte hop3;
+  byte hop4;
+  byte hop5;
+  byte hop6;
+  byte hop7;
 };
 
-void setup() {
 
-  Serial.begin(115200);
-  //printf_begin();
-  // Set the nodeID manually
-  mesh.setNodeID(nodeID);
-  // Connect to the mesh
-  Serial.println(F("Connecting to the mesh..."));
-  mesh.begin();
-}
+byte addresses[][6] = {"BoxDo","BoxDo"};
 
+payload_t payload;
+payload_t payload_r;
+payload_t theRouting;
+int       isWaitingRouting;
+unsigned long theTimeForTimeout;
+unsigned long theTimeout = TIMEOUT;
+int aCounter = 0;
 
+int hops(payload_t aPayload)
+{
+  int aHops = 0;
 
-void loop() {
-
-  mesh.update();
-
-  // Send to the master node every second
-  if (millis() - displayTimer >= 1200) {
-    displayTimer = millis();
-
-    theTemperature++;
-    
-    // Send an 'M' type message containing the current millis()
-    //if (!mesh.write(&displayTimer, 'M', sizeof(displayTimer))) {
-    if (!mesh.write(&theTemperature, ID, sizeof(theTemperature))) {
-      // If a write fails, check connectivity to the mesh network
-      if ( ! mesh.checkConnection() ) {
-        //refresh the network address
-        Serial.println("Renewing Address");
-        mesh.renewAddress();
-      } else {
-        Serial.println("Send fail, Test OK");
-      }
-    } else {
-      Serial.print("Send OK: "); Serial.println(displayTimer);
+  if (aPayload.hop1 != 0)
+  {
+    aHops++; 
+    if (aPayload.hop2 != 0)
+    {
+       aHops++;
+       if (aPayload.hop3 != 0)
+       {
+          aHops++;
+       }
     }
   }
-
-  while (network.available()) {
-    RF24NetworkHeader header;
-    payload_t payload;
-    network.read(header, &payload, sizeof(payload));
-    Serial.print("Received packet #");
-    Serial.print(payload.counter);
-    Serial.print(" at ");
-    Serial.println(payload.ms);
-  }
+  
+  return aHops;
 }
+void setup() {
+  Serial.begin(115200);
+  Serial.println(F("BoxDomotic Node 1.0"));
+
+  theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
+  if (theRadioNumber == 0xFF)
+  {
+    theRadioNumber = 0xFE;
+    //EEPROM.write(RADIO_ID_ADDRESS, 3);
+  }
+  Serial.print("Radio ID:");
+  Serial.println(theRadioNumber);
+  
+  radio.begin();
+
+  // Set the PA Level low to prevent power supply related issues since this is a
+ // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+  radio.setPALevel(RF24_PA_LOW);
+  
+  // Open a writing and reading pipe on each radio, with opposite addresses
+  radio.openWritingPipe(addresses[1]);
+  radio.openReadingPipe(1,addresses[0]);
+    
+  // Start the radio listening for data
+  radio.startListening();
+
+  isWaitingRouting = 0;
+}
+
+void loop() {
+   if (isWaitingRouting)
+   {
+      if ((theTimeForTimeout + theTimeout) < millis())
+      {
+Serial.println("Timeout");
+Serial.println(millis());
+Serial.println(theTimeForTimeout);  
+      isWaitingRouting = 0;    
+
+      theRouting.messageId = theRouting.messageId+1;
+      theRouting.hop1 = theRouting.origen;
+      theRouting.origen = theRadioNumber;
+      theRouting.action1 = TIMEOUT_ANSWER; //Timeout
+      theRouting.action2 = TIMEOUT_ANSWER; //Timeout
+      theRouting.hop2    = 0;
+      theRouting.hop3    = 0;
+      theRouting.hop4    = 0;
+      theRouting.hop5    = 0;
+      theRouting.hop6    = 0;
+      theRouting.hop7    = 0;
+      
+      radio.stopListening();                                        // First, stop listening so we can talk   
+      delay (10);
+      radio.write( &theRouting, sizeof(payload_t) );              // Send the final one back.
+      delay (10);      
+      radio.startListening();
+      }
+   }  
+     
+   if( radio.available())
+   {
+      radio.read( &payload_r, sizeof(payload_t) ); 
+      
+      if (isWaitingRouting)
+      {            
+         //Wait answer ROUTING                  
+         if ((payload_r.hop1 == theRadioNumber ))
+         {
+Serial.println("Answer");
+Serial.println(millis());
+            isWaitingRouting = 0;
+            payload_r.hop7 = payload_r.hop6;
+            payload_r.hop6 = payload_r.hop5;
+            payload_r.hop5 = payload_r.hop4;
+            payload_r.hop4 = payload_r.hop3;
+            payload_r.hop3 = payload_r.hop2;
+            payload_r.hop2 = payload_r.origen;
+            payload_r.hop1 = theRouting.origen;            
+            payload_r.origen = theRadioNumber;
+
+            radio.stopListening();                                        // First, stop listening so we can talk   
+            delay (10);
+            radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
+            delay (10);      
+            radio.startListening();
+         }
+
+   }else
+   {
+      if ((payload_r.hop1 == theRadioNumber) && ((payload_r.messageId % 2) == 0))
+      {  
+Serial.println("mio");   
+        if (payload_r.hop2 == 0)
+        {
+Serial.println("Rx");
+          // mensaje directo
+Serial.print(payload_r.origen);
+          radio.stopListening();                                        // First, stop listening so we can talk   
+          //delay (10);
+          payload_r.messageId = payload_r.messageId+1;
+          payload_r.hop1 = payload_r.origen;
+          payload_r.origen = theRadioNumber;
+          //payload_r.action2 = PerformAction(payload_r.action1, payload_r.action2);//TBD
+          payload_r.action1 = 0x00; //STATUS OK
+          
+          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
+          delay (10);      
+          radio.startListening();                                       // Now, resume listening so we catch the next packets.     
+Serial.println(F("Sent response "));
+        }else
+        { 
+Serial.println("Routing msg");
+          if (isRouter == 1)
+          {
+            isWaitingRouting = 1;
+            theTimeout = (hops(payload_r)-1)*TIMEOUT;
+            theRouting = payload_r;
+            payload_r.origen = theRadioNumber;
+            payload_r.hop1 = payload_r.hop2;
+            payload_r.hop2 = payload_r.hop3;
+            payload_r.hop3 = payload_r.hop4;
+            payload_r.hop4 = payload_r.hop5;
+            payload_r.hop5 = payload_r.hop6;
+            payload_r.hop6 = payload_r.hop7;
+            payload_r.hop7 = 0;
+            theTimeForTimeout = millis();
+  
+            Serial.println("Routing");
+            Serial.println(theTimeForTimeout);
+            radio.stopListening();                                        // First, stop listening so we can talk   
+            delay (10);
+            radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
+            //delay (10);      
+            radio.startListening();
+            //delay(10);
+            
+  Serial.println("Waiting..");
+             //
+          }
+        }
+      }
+    } 
+      //delay (10);
+   }
+   delay (10);
+
+} // Loop
