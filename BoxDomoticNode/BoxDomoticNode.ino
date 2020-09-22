@@ -62,11 +62,12 @@ void setup() {
   Serial.begin(115200);
   Serial.println(F("BoxDomotic Node 1.0"));
 
+  //EEPROM.write(RADIO_ID_ADDRESS, 4);
+
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
   if (theRadioNumber == 0xFF)
   {
     theRadioNumber = 0xFE;
-    //EEPROM.write(RADIO_ID_ADDRESS, 3);
   }
   Serial.print("Radio ID:");
   Serial.println(theRadioNumber);
