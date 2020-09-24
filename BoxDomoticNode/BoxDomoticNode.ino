@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include "RF24.h"
 #include "BoxDomoticProtocol.h"
+#include "Action.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 108 */
 RF24 radio(9,10);
@@ -33,6 +34,7 @@ byte addresses[][6] = {"BoxDo","BoxDo"};
 
 payload_t payload;
 payload_t payload_r;
+payload_t payload_original;
 payload_t theRouting;
 int       isWaitingRouting;
 unsigned long theTimeForTimeout;
@@ -158,15 +160,17 @@ Serial.println("Rx");
 Serial.print(payload_r.origen);
           radio.stopListening();                                        // First, stop listening so we can talk   
           //delay (10);
+          payload_original = payload_r;
           payload_r.messageId = payload_r.messageId+1;
           payload_r.hop1 = payload_r.origen;
           payload_r.origen = theRadioNumber;
-          //payload_r.action2 = PerformAction(payload_r.action1, payload_r.action2);//TBD
+          payload_r.action2 = Answer(payload_r.action1, payload_r.action2);
           payload_r.action1 = 0x00; //STATUS OK
           
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
           delay (10);      
-          radio.startListening();                                       // Now, resume listening so we catch the next packets.     
+          radio.startListening();                                       // Now, resume listening so we catch the next packets.  
+          Perform(payload_original.action1, payload_original.action2);   
 Serial.println(F("Sent response "));
         }else
         { 
