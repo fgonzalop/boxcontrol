@@ -25,6 +25,8 @@ TMRh20 2014 - Updated to work with optimized RF24 Arduino library
 #include <string>
 #include <unistd.h>
 #include <RF24/RF24.h>
+#include "jsoncpp/json/json.h"
+#include <fstream>
 
 using namespace std;
 //
@@ -69,6 +71,27 @@ int main(int argc, char** argv)
 	unsigned long sent_time;
 	
     cout << "BoxDomotic Gateway\n";
+	
+    ifstream theTopologia("BoxDomotic_topologia.json");
+	ifstream theMessages("BoxDomotic_messages.json");
+
+    Json::Reader reader;
+    Json::Value theRootTopo;
+	Json::Value theRootMessages;
+	
+    reader.parse(theTopologia, theRootTopo);
+	reader.parse(theMessages, theRootMessages);
+    
+	const Json::Value& theDevicesArray= theRootTopo["dispositivos"];
+	for (int i=0; i<theDevicesArray.size(); i++)
+	{
+		cout << "ID: " << theDevicesArray[i]["id"].asString();
+	}
+	
+	cout << theRootTopo;
+	cout << theRootMessages;
+	
+	
 
     // Setup and configure rf radio
     radio.begin();
