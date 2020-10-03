@@ -1,21 +1,21 @@
 { 
-"1":[
-    {"nombre":"salon/tra",
+"verano":[
+    {"id_dispositivo":1,
     "id":1,
-    "pub":1,
-    "type":"tra"},
-	{"nombre":"salon/lux",
+    "action1":"REQUEST_TEMPERATURE_ACTION",
+    "action2":"5"},
+	{"id_dispositivo":2,
     "id":2,
-    "pub":1,
-    "type":"lux"}
+    "action1":"REQUEST_TEMPERATURE_ACTION",
+    "action2":"4"}
 ],
-"2":[
-	{"nombre":"cocina/tra",
+"invierno":[
+	{"id_dispositivo":1,
     "id":1,
-    "pub":1,
-    "type":"tra"},
-	{"nombre":"cocina/lux",
+    "action1":"REQUEST_TEMPERATURE_ACTION",
+    "action2":"5"},
+	{"id_dispositivo":2,
     "id":2,
-    "pub":1,
-    "type":"lux"}]
+    "action1":"REQUEST_TEMPERATURE_ACTION",
+    "action2":"4"}]
 }

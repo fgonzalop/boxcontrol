@@ -1,0 +1,21 @@
+{ 
+"verano":[
+    {"id":1,
+    "delay":1},
+	{"id":2,
+    "delay":1},
+	{"id":1,
+    "delay":2},
+	{"id":2,
+    "delay":2}
+],
+"invierno":[
+	{"id":1,
+    "delay":1},
+	{"id":2,
+    "delay":1},
+	{"id":1,
+    "delay":2},
+	{"id":2,
+    "delay":2}]
+}
