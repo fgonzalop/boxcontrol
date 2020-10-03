@@ -1,34 +1,17 @@
 /*
 * BoxDomotic Node to communicate with RPI and others
 */
-
+#include <OneWire.h>
 #include <EEPROM.h>
 #include <SPI.h>
 #include "RF24.h"
 #include "BoxDomoticProtocol.h"
-#include "Action.h"
 
-/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 108 */
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
 RF24 radio(9,10);
 
 int theRadioNumber;
 int isRouter = 1;
-
-struct payload_t {
-  byte origen;
-  byte messageId;
-  byte action1;
-  byte action2;
-  byte spare;
-  byte hop1;
-  byte hop2;
-  byte hop3;
-  byte hop4;
-  byte hop5;
-  byte hop6;
-  byte hop7;
-};
-
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -40,26 +23,10 @@ int       isWaitingRouting;
 unsigned long theTimeForTimeout;
 unsigned long theTimeout = TIMEOUT;
 int aCounter = 0;
+answer_t aAnswer;
 
-int hops(payload_t aPayload)
-{
-  int aHops = 0;
+unsigned long theTemperature = 20;
 
-  if (aPayload.hop1 != 0)
-  {
-    aHops++; 
-    if (aPayload.hop2 != 0)
-    {
-       aHops++;
-       if (aPayload.hop3 != 0)
-       {
-          aHops++;
-       }
-    }
-  }
-  
-  return aHops;
-}
 void setup() {
   Serial.begin(115200);
   Serial.println(F("BoxDomotic Node 1.0"));
@@ -90,7 +57,13 @@ void setup() {
   isWaitingRouting = 0;
 }
 
-void loop() {
+/*
+ * Procedure loop
+ *    Se lee la parte de RF los datos.
+ *    Se procesa y se manda ANSWER y PERFORM (si es diferido)
+ */
+void loop() 
+{
    if (isWaitingRouting)
    {
       if ((theTimeForTimeout + theTimeout) < millis())
@@ -103,8 +76,8 @@ Serial.println(theTimeForTimeout);
       theRouting.messageId = theRouting.messageId+1;
       theRouting.hop1 = theRouting.origen;
       theRouting.origen = theRadioNumber;
-      theRouting.action1 = TIMEOUT_ANSWER; //Timeout
-      theRouting.action2 = TIMEOUT_ANSWER; //Timeout
+      theRouting.action.action1 = TIMEOUT_ANSWER; //Timeout
+      theRouting.action.action2 = TIMEOUT_ANSWER; //Timeout
       theRouting.hop2    = 0;
       theRouting.hop3    = 0;
       theRouting.hop4    = 0;
@@ -164,13 +137,12 @@ Serial.print(payload_r.origen);
           payload_r.messageId = payload_r.messageId+1;
           payload_r.hop1 = payload_r.origen;
           payload_r.origen = theRadioNumber;
-          payload_r.action2 = Answer(payload_r.action1, payload_r.action2);
-          payload_r.action1 = 0x00; //STATUS OK
+          payload_r.action = Answer(payload_r.action);
           
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
           delay (10);      
           radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-          Perform(payload_original.action1, payload_original.action2);   
+          Perform(payload_r.action);   
 Serial.println(F("Sent response "));
         }else
         { 
@@ -210,3 +182,128 @@ Serial.println("Routing msg");
    delay (10);
 
 } // Loop
+
+/*
+ * Procedure ANSWER
+ *   Dependiendo de la ACCION se hará una llamada a una función definida
+ *   
+ */
+answer_t Answer(answer_t aAction)
+{
+  answer_t aResult;
+  switch (aAction.action1)
+  {
+    case REQUEST_TEMPERATURE_ACTION:
+       aResult.action1 = SUCCESS_ANSWER;
+       aResult.action2 = AnswerTemperature(aAction);
+       break;
+    case REQUEST_LUX_ACTION:
+       aResult.action1 = SUCCESS_ANSWER;
+       aResult.action2 = AnswerLux(aAction);
+       break;
+    default:
+       aResult.action1 = NO_ANSWER;
+       aResult.action2 = 0;
+       break;
+  }
+
+  return aResult;
+}
+
+/*
+ * Procedure PERFORM
+ *    Sólo se ejecutará algo diferido si el tiempo de consulta es alto, p.e. TEMPERATURA
+ *    
+ */
+
+void Perform(answer_t aAction)
+{
+  switch (aAction.action1)
+  {
+    case REQUEST_TEMPERATURE_ACTION:
+       PerformTemperature(aAction);
+       break;
+    default:
+       break;
+  }
+}
+
+/*
+ * Procedure ANSWER (TEMPERATURE)
+ *    Aquí se devuelve la temperatura última leída.
+ */
+unsigned long AnswerTemperature(answer_t aAction)
+{
+   return theTemperature;
+}
+
+/*
+ * Procedure PERFORM (TEMPERATURE)
+ *    Lectura de la temperatura en modo DS18B20
+ *    
+ */
+void PerformTemperature(answer_t aAction)
+{
+  OneWire  ds(aAction.action2);
+  byte i;
+  byte present = 0;
+  byte type_s;
+  byte data[12];
+  byte addr[8];
+  float celsius;
+  
+  if (!ds.search(addr))
+  {
+    theTemperature = 25;//TBD
+    return;
+  }
+  
+  ds.reset();
+  ds.select(addr);
+  ds.write(0x44, 1);
+  
+  delay(1000);
+  present = ds.reset();
+  ds.select(addr);    
+  ds.write(0xBE);
+  
+  for ( i = 0; i < 9; i++) 
+  {           // we need 9 bytes
+    data[i] = ds.read();
+    Serial.print(data[i], HEX);
+    Serial.print(" ");
+  }
+
+  // Convert the data to actual temperature
+  // because the result is a 16 bit signed integer, it should
+  // be stored to an "int16_t" type, which is always 16 bits
+  // even when compiled on a 32 bit processor.
+  int16_t raw = (data[1] << 8) | data[0];
+  if (type_s) {
+    raw = raw << 3; // 9 bit resolution default
+    if (data[7] == 0x10) {
+      // "count remain" gives full 12 bit resolution
+      raw = (raw & 0xFFF0) + 12 - data[6];
+    }
+  } else {
+    byte cfg = (data[4] & 0x60);
+    // at lower res, the low bits are undefined, so let's zero them
+    if (cfg == 0x00) raw = raw & ~7;  // 9 bit resolution, 93.75 ms
+    else if (cfg == 0x20) raw = raw & ~3; // 10 bit res, 187.5 ms
+    else if (cfg == 0x40) raw = raw & ~1; // 11 bit res, 375 ms
+    //// default is 12 bit resolution, 750 ms conversion time
+  }
+  
+  celsius = (float)raw / 16.0;
+  
+  theTemperature = (int) (celsius * 2.0); //Resolución de 0,5 grados.
+}
+
+/*
+ * Procedure ANSWER (LUX)
+ *    Aquí se devuelve la cantidad de lux leída.
+ */
+unsigned long AnswerLux(answer_t aAction)
+{
+   return theTemperature; //TBD
+}
