@@ -1,21 +1,21 @@
 { 
 "verano":[
     {"id_dispositivo":1,
-    "id":1,
+    "id":2,
     "action1":"REQUEST_TEMPERATURE_ACTION",
-    "action2":"5"},
+    "action2":5},
 	{"id_dispositivo":2,
     "id":2,
     "action1":"REQUEST_TEMPERATURE_ACTION",
-    "action2":"4"}
+    "action2":4}
 ],
 "invierno":[
-	{"id_dispositivo":1,
+	{"id_dispositivo":2,
     "id":1,
     "action1":"REQUEST_TEMPERATURE_ACTION",
-    "action2":"5"},
+    "action2":5},
 	{"id_dispositivo":2,
     "id":2,
     "action1":"REQUEST_TEMPERATURE_ACTION",
-    "action2":"4"}]
+    "action2":4}]
 }

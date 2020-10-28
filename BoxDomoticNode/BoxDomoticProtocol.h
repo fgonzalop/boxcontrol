@@ -14,9 +14,13 @@ const int REQUEST_ON_RELAY_ACTION     = 0x05;
 const int REQUEST_OFF_RELAY_ACTION    = 0x06;
 const int REQUEST_RELAY_STATUS_ACTION = 0x07;
 
+typedef uint8_t byte;
+
 struct answer_t {
   byte action1;
   byte action2;
+  byte action3;
+  byte action4;
 };
 
 struct payload_t {

@@ -27,6 +27,7 @@ TMRh20 2014 - Updated to work with optimized RF24 Arduino library
 #include <RF24/RF24.h>
 #include "jsoncpp/json/json.h"
 #include <fstream>
+#include "BoxDomoticProtocol.h"
 
 using namespace std;
 //
@@ -49,6 +50,8 @@ bool radioNumber = 1;
 
 // Radio pipe addresses for the 2 nodes to communicate.
 const uint8_t pipes[][6] = {"BoxDo", "BoxDo"};
+/*
+
 struct payload_t {
   uint8_t origen;  
   uint8_t messageId;
@@ -63,6 +66,7 @@ struct payload_t {
   uint8_t hop6;
   uint8_t hop7;
 };
+*/
 
 int main(int argc, char** argv)
 {
@@ -83,14 +87,24 @@ int main(int argc, char** argv)
 	reader.parse(theMessages, theRootMessages);
     
 	const Json::Value& theDevicesArray= theRootTopo["dispositivos"];
-	for (int i=0; i<theDevicesArray.size(); i++)
+	/*for (int i=0; i<theDevicesArray.size(); i++)
 	{
-		cout << "ID: " << theDevicesArray[i]["id"].asString();
+		
+		cout << "IDxx: " << theDevicesArray[i]["hop1"].asUInt() << i;
+	}*/
+	
+	const Json::Value& theMessagesArray= theRootMessages["invierno"];
+	cout << "Messages invierno\n";
+	/*for (int i=0; i<theMessagesArray.size(); i++)
+	{
+		cout << "ID: " << theMessagesArray[i]["id"].asString();
+		cout << "Act1: " << theMessagesArray[i]["action1"].asString();
+		cout << "Act2: " << theMessagesArray[i]["action2"].asString();
 	}
 	
 	cout << theRootTopo;
 	cout << theRootMessages;
-	
+	*/
 	
 
     // Setup and configure rf radio
@@ -99,7 +113,7 @@ radio.setPALevel(RF24_PA_LOW);
     // optionally, increase the delay between retries & # of retries
     radio.setRetries(15, 15);
     // Dump the configuration of the rf unit for debugging
-    radio.printDetails();
+//    radio.printDetails();
 
     /***********************************/
     // This simple sketch opens two pipes for these two nodes to communicate
@@ -110,19 +124,40 @@ radio.setPALevel(RF24_PA_LOW);
 
 
     radio.startListening();
+/*
+struct answer_t {
+  byte action1;
+  byte action2;
+  byte action3;
+  byte action4;
+};
 
+struct payload_t {
+  byte origen;
+  byte messageId;
+  answer_t action;
+  byte spare;
+  byte hop1;
+  byte hop2;
+  byte hop3;
+  byte hop4;
+  byte hop5;
+  byte hop6;
+  byte hop7;
+};
+*/
 	payload.origen  = 0xFF;
-	payload.messageId = 4;
-	payload.action1 = 0x02;
-	payload.action2 = 99;
-	payload.hop1 = 2;
-	payload.hop2 = 0;
-	payload.hop3 = 0;
-	payload.hop4 = 0;
-	payload.hop5 = 0;
-	payload.hop6 = 0;
-	payload.hop7 = 0;
-        payload.spare = 0;	
+	payload.messageId = theMessagesArray[0]["id"].asUInt()*2;
+	payload.action.action1 = 0x02;//TBD
+	payload.action.action2 = theMessagesArray[0]["action2"].asUInt();
+	payload.hop1 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop1"].asUInt();
+	payload.hop2 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop2"].asUInt();
+	payload.hop3 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop3"].asUInt();
+	payload.hop4 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop4"].asUInt();
+	payload.hop5 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop5"].asUInt();
+	payload.hop6 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop6"].asUInt();
+	payload.hop7 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop7"].asUInt();
+    payload.spare = 0;	
 
     // forever loop
     {       
@@ -158,6 +193,7 @@ radio.setPALevel(RF24_PA_LOW);
 			if (timeout) 
 			{
 				printf("Failed, response timed out.\n");
+				isAnswer = true;
 			}else 
 			{
 				radio.read(&payload_rx, sizeof(payload_t));
@@ -167,8 +203,8 @@ radio.setPALevel(RF24_PA_LOW);
 				printf("Got payload(%d) IP= %d. msgId=%d. act1=%d.act2=%d.spa=%d.hop1=%d.hop2=%d.hop3=%d.hop4=%d.hop5=%d.hop6=%d.hop7=%d\n", sizeof(payload_t), 
 						payload_rx.origen,
 						payload_rx.messageId, 
-						payload_rx.action1, 
-						payload_rx.action2,
+						payload_rx.action.action1, 
+						payload_rx.action.action2,
 						payload_rx.spare,
 						payload_rx.hop1,
 						payload_rx.hop2,
