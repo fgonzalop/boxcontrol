@@ -196,14 +196,24 @@ answer_t Answer(answer_t aAction)
     case REQUEST_TEMPERATURE_ACTION:
        aResult.action1 = SUCCESS_ANSWER;
        aResult.action2 = AnswerTemperature(aAction);
+Serial.print("Temperature (");
+Serial.print(aAction.action2);
+Serial.print(")");
+Serial.println(aResult.action2);
        break;
     case REQUEST_LUX_ACTION:
        aResult.action1 = SUCCESS_ANSWER;
        aResult.action2 = AnswerLux(aAction);
+Serial.print("Lux (");
+Serial.print(aAction.action2);
+Serial.print(")");
+Serial.println(aResult.action2);
        break;
     default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
+Serial.print("DEFAULT ");
+Serial.println(aResult.action2);
        break;
   }
 

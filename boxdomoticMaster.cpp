@@ -67,12 +67,29 @@ struct payload_t {
   uint8_t hop7;
 };
 */
+int ConvertTxt(string aTxt)
+{
+	if (aTxt == "SET_ID_ACTION")
+		return SET_ID_ACTION;
+
+	if (aTxt == "REQUEST_TEMPERATURE_ACTION")
+		return REQUEST_TEMPERATURE_ACTION;
+	
+	if (aTxt == "REQUEST_LUX_ACTION")
+		return REQUEST_LUX_ACTION;
+	
+	if (aTxt == "REQUEST_PIR_ACTION")
+		return REQUEST_PIR_ACTION;
+	
+	return 0;
+}
 
 int main(int argc, char** argv)
 {
 	payload_t payload;
 	payload_t payload_rx;
 	unsigned long sent_time;
+	string aAction;
 	
     cout << "BoxDomotic Gateway\n";
 	
@@ -148,7 +165,8 @@ struct payload_t {
 */
 	payload.origen  = 0xFF;
 	payload.messageId = theMessagesArray[0]["id"].asUInt()*2;
-	payload.action.action1 = 0x02;//TBD
+	//aAction = theMessagesArray[0]["action1"].asString(); 
+	payload.action.action1 = ConvertTxt(theMessagesArray[0]["action1"].asString());
 	payload.action.action2 = theMessagesArray[0]["action2"].asUInt();
 	payload.hop1 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop1"].asUInt();
 	payload.hop2 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop2"].asUInt();
