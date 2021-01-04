@@ -1,4 +1,7 @@
+const int MAX_RELAY        = 10;
 const int RADIO_ID_ADDRESS = 0;
+const int RELAY_INDEX      = RADIO_ID_ADDRESS+1;
+const int TEMPERATURE_PIN  = RELAY_INDEX + MAX_RELAY;
 
 const unsigned long TIMEOUT = 200;
 
@@ -13,6 +16,8 @@ const int REQUEST_PIR_ACTION          = 0x04;
 const int REQUEST_ON_RELAY_ACTION     = 0x05;
 const int REQUEST_OFF_RELAY_ACTION    = 0x06;
 const int REQUEST_RELAY_STATUS_ACTION = 0x07;
+
+
 
 typedef uint8_t byte;
 

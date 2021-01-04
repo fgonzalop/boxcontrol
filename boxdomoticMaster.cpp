@@ -80,7 +80,13 @@ int ConvertTxt(string aTxt)
 	
 	if (aTxt == "REQUEST_PIR_ACTION")
 		return REQUEST_PIR_ACTION;
+		    
+	if (aTxt == "REQUEST_ON_RELAY_ACTION")
+		return REQUEST_ON_RELAY_ACTION;
 	
+	if (aTxt == "REQUEST_OFF_RELAY_ACTION")
+		return REQUEST_OFF_RELAY_ACTION;
+		
 	return 0;
 }
 
@@ -126,9 +132,9 @@ int main(int argc, char** argv)
 
     // Setup and configure rf radio
     radio.begin();
-radio.setPALevel(RF24_PA_LOW);
+radio.setPALevel(RF24_PA_MAX);
     // optionally, increase the delay between retries & # of retries
-    radio.setRetries(15, 15);
+//    radio.setRetries(15, 15);
     // Dump the configuration of the rf unit for debugging
 //    radio.printDetails();
 
@@ -186,7 +192,20 @@ struct payload_t {
 
 		printf("Now sending...");
 		sent_time = millis();
-
+		printf("Sent payload(%d) IP= %d. msgId=%d. act1=%d.act2=%d.spa=%d.hop1=%d.hop2=%d.hop3=%d.hop4=%d.hop5=%d.hop6=%d.hop7=%d\n", sizeof(payload_t), 
+						payload.origen,
+						payload.messageId, 
+						payload.action.action1, 
+						payload.action.action2,
+						payload.spare,
+						payload.hop1,
+						payload.hop2,
+						payload.hop3,
+						payload.hop4,
+						payload.hop5,
+						payload.hop6,
+						payload.hop7
+						);
 		bool ok = radio.write(&payload, sizeof(payload_t));
 
 		if (!ok) {

@@ -12,6 +12,7 @@ RF24 radio(9,10);
 
 int theRadioNumber;
 int isRouter = 1;
+int theRelayIndex;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -26,12 +27,26 @@ int aCounter = 0;
 answer_t aAnswer;
 
 unsigned long theTemperature = 20;
+int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
 
 void setup() {
+  int aIndex;
+  
   Serial.begin(115200);
-  Serial.println(F("BoxDomotic Node 1.0"));
+  Serial.println(F("BoxDomotic Node 1.0.a"));
 
   //EEPROM.write(RADIO_ID_ADDRESS, 4);
+  EEPROM.write(RELAY_INDEX, 9); //1 relay operativo
+  EEPROM.write(RELAY_INDEX+1, 17);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+2, 8);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+3, 7);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+4, 6);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+5, 5);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+6, 4);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+7, 3);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+8, 2);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+9, 18);// pin 2 de relay (0)
+  //
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
   if (theRadioNumber == 0xFF)
@@ -55,6 +70,34 @@ void setup() {
   radio.startListening();
 
   isWaitingRouting = 0;
+
+  theRelayIndex = EEPROM.read(RELAY_INDEX);
+  if (theRelayIndex == 0xFF)
+  {
+Serial.println("Relay's not configured");
+     for (aIndex=0; aIndex<MAX_RELAY; aIndex++)
+     {
+        theRelay[aIndex]= 0;
+     }
+      
+  }else
+  {
+Serial.print("Relay index ");
+Serial.println(theRelayIndex);
+     for (aIndex=0; aIndex<theRelayIndex; aIndex++)
+     {
+        theRelay[aIndex]= EEPROM.read(RELAY_INDEX+aIndex+1);
+        pinMode(theRelay[aIndex], OUTPUT);
+        digitalWrite(theRelay[aIndex], LOW);
+     }   
+     
+     delay (1500);
+     for (aIndex=0; aIndex<theRelayIndex; aIndex++)
+     {
+        digitalWrite(theRelay[aIndex], HIGH);
+     }
+
+   }
 }
 
 /*
@@ -95,6 +138,7 @@ Serial.println(theTimeForTimeout);
      
    if( radio.available())
    {
+      payload_r.messageId=1; //Only to enter once
       radio.read( &payload_r, sizeof(payload_t) ); 
       
       if (isWaitingRouting)
@@ -209,6 +253,54 @@ Serial.print(aAction.action2);
 Serial.print(")");
 Serial.println(aResult.action2);
        break;
+    case REQUEST_ON_RELAY_ACTION:
+       aResult.action1 = SUCCESS_ANSWER;
+       if ( aAction.action2 > MAX_RELAY-1)
+       {  //Out of range
+          aResult.action2 = NO_ANSWER;
+          Serial.println("Value out of range");
+          break;
+       }
+       
+       if (theRelay[aAction.action2] == 0)
+       {  //No relay conected in this value
+          aResult.action2 = NO_ANSWER;
+          Serial.println("No relay pin connected");
+       }else
+       {
+          aResult.action2 = SUCCESS_ANSWER; 
+          digitalWrite(theRelay[aAction.action2], HIGH);
+       }
+       
+Serial.print("ON_RELAY (");
+Serial.print(aAction.action2);
+Serial.print(")");
+Serial.println(aResult.action2);
+       break;
+    case REQUEST_OFF_RELAY_ACTION:
+       aResult.action1 = SUCCESS_ANSWER;
+       if ( aAction.action2 > MAX_RELAY-1)
+       {  //Out of range
+          aResult.action2 = NO_ANSWER;
+          Serial.println("Value out of range");
+          break;
+       }
+       
+       if (theRelay[aAction.action2] == 0)
+       {  //No relay conected in this value
+          aResult.action2 = NO_ANSWER;
+          Serial.println("No relay pin connected");
+       }else
+       {
+          aResult.action2 = SUCCESS_ANSWER; 
+          digitalWrite(theRelay[aAction.action2], LOW);
+       }
+       
+Serial.print("OFF_RELAY (");
+Serial.print(aAction.action2);
+Serial.print(")");
+Serial.println(aResult.action2);
+       break;   
     default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
