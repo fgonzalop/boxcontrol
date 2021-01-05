@@ -1,5 +1,6 @@
 { 
 "nombre":"calefaccion\planta1",
+"version":"1.0.a",
 "id":2,
 "relay_index":9,
 "relay_off":"LOW",
