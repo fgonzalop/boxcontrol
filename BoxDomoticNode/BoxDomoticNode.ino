@@ -35,17 +35,36 @@ void setup() {
   Serial.begin(115200);
   Serial.println(F("BoxDomotic Node 1.0.a"));
 
-  //EEPROM.write(RADIO_ID_ADDRESS, 4);
-  EEPROM.write(RELAY_INDEX, 9); //1 relay operativo
-  EEPROM.write(RELAY_INDEX+1, 17);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+2, 8);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+3, 7);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+4, 6);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+5, 5);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+6, 4);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+7, 3);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+8, 2);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+9, 18);// pin 2 de relay (0)
+  /*
+   * EEPROM.write(RADIO_ID_ADDRESS, 2);
+   * EEPROM.write(RELAY_INDEX, 255); //1 relay operativo
+  EEPROM.write(RELAY_INDEX+1, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+2, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+3, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+4, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+5, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+6, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+7, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+8, 255);// pin 2 de relay (0)
+  EEPROM.write(RELAY_INDEX+9, 255);// pin 2 de relay (0)
+  */
+  
+  //
+  /*
+  Serial.println("ID ADDRESS:");
+  Serial.println(EEPROM.read(RADIO_ID_ADDRESS));
+  Serial.println(EEPROM.read(RELAY_INDEX));
+  Serial.println(EEPROM.read(RELAY_INDEX+1));
+  Serial.println(EEPROM.read(RELAY_INDEX+2));
+  Serial.println(EEPROM.read(RELAY_INDEX+3));
+  Serial.println(EEPROM.read(RELAY_INDEX+4));
+  Serial.println(EEPROM.read(RELAY_INDEX+5));
+  Serial.println(EEPROM.read(RELAY_INDEX+6));
+  Serial.println(EEPROM.read(RELAY_INDEX+7));
+  Serial.println(EEPROM.read(RELAY_INDEX+8));
+  Serial.println(EEPROM.read(RELAY_INDEX+9));
+  Serial.println(EEPROM.read(RELAY_INDEX+10));
+  */
   //
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
