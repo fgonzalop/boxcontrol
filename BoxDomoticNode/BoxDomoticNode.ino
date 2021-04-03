@@ -13,6 +13,7 @@ RF24 radio(9,10);
 int theRadioNumber;
 int isRouter = 1;
 int theRelayIndex;
+int theTemperaturePin;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -33,7 +34,7 @@ void setup() {
   int aIndex;
   
   Serial.begin(115200);
-  Serial.println(F("BoxDomotic Node 1.0.a"));
+  Serial.println(F("BoxDomotic Node 1.0.b"));
 
   /*
    * EEPROM.write(RADIO_ID_ADDRESS, 2);
@@ -117,6 +118,19 @@ Serial.println(theRelayIndex);
      }
 
    }
+//EEPROM.write(TEMPERATURE_PIN, 4);// pin 4 Temperatura
+
+   theTemperaturePin = EEPROM.read(TEMPERATURE_PIN);
+   if (theTemperaturePin == 0xFF)
+   {
+Serial.println("Temperature PIN not configured");      
+   }
+   else
+   {
+Serial.print("Configuring Temperature pin ");
+Serial.println(theTemperaturePin);   
+Temperature();
+  }
 }
 
 /*
@@ -365,7 +379,21 @@ unsigned long AnswerTemperature(answer_t aAction)
  */
 void PerformTemperature(answer_t aAction)
 {
-  OneWire  ds(aAction.action2);
+  //OneWire  ds(aAction.action2);
+  if (theTemperaturePin == 0xFF)
+  {
+    theTemperature = 25;//Valor por defecto
+    return;      
+  }
+  else
+  {
+    Temperature();
+  }
+}
+
+void Temperature()
+{
+  OneWire ds(theTemperaturePin);
   byte i;
   byte present = 0;
   byte type_s;
@@ -394,7 +422,7 @@ void PerformTemperature(answer_t aAction)
     Serial.print(data[i], HEX);
     Serial.print(" ");
   }
-
+  Serial.println();
   // Convert the data to actual temperature
   // because the result is a 16 bit signed integer, it should
   // be stored to an "int16_t" type, which is always 16 bits
@@ -418,6 +446,7 @@ void PerformTemperature(answer_t aAction)
   celsius = (float)raw / 16.0;
   
   theTemperature = (int) (celsius * 2.0); //Resolución de 0,5 grados.
+  Serial.println(celsius);
 }
 
 /*
