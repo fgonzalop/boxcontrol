@@ -16,6 +16,7 @@ int theRelayIndex;
 int theTemperaturePin;
 int thePIRPin;
 volatile int thePIR = 0;
+int theLuxPin;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -153,6 +154,25 @@ Serial.println(" OK");
      Serial.println(" OK");
   }
   
+  //EEPROM.write(LUX_PIN, 7);// pin 7 LUX
+  theLuxPin = EEPROM.read(LUX_PIN);
+
+  if (theLuxPin == 0xFF)
+  {
+    Serial.println("LUX not configured");  
+  }
+  else
+  {
+     Serial.print("Configuring LUX pin ");
+     Serial.print(theLuxPin); 
+     Serial.print(" ");
+     int sensorValue = analogRead(A7);//TBD
+     // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+     float voltage = sensorValue * (5.0 / 1023.0);
+     // print out the value you read:
+     Serial.print(voltage);
+     Serial.println(" OK");
+  }
 }
 
 /*
