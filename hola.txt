@@ -1,0 +1,151 @@
+
+-- **************************************************************
+--
+-- ICD between GESCOMET/SMC and CIFPECOM
+--
+-- **************************************************************
+CIPHER DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+IMPORTS
+TdmaOperationMessage
+FROM CIPHER-TDMA
+flowIdUpperLimit,
+VoiceFlowConfigurationType,
+VoiceOperationRequestMessage,
+VoiceOperationResponseMessage
+FROM CIPHER-VOICE
+portUpperLimit,
+IpAddressType,
+IpOperationMessage,
+CipherId
+FROM CIPHER-DATA;
+-- **************************************************************
+--
+-- Constants
+--
+-- **************************************************************
+-- Longitud máxima de los strings utilizados para identificar misiones, versiones, etc.
+stringUpperLimit INTEGER ::= 255
+-- Número máximo de suscriptores para recibir mensajes de eventos de estado
+
+subscribersUpperLimit INTEGER::= 7
+-- Número máximo de cifradores en el mensaje del estado de la configuración
+cipherIdsUpperLimit INTEGER ::= 255
+-- Número máximo de identificadores de grupos multicast
+multicastGroupsIdUpperLimit INTEGER ::= 50
+-- Número máximo de flujos de voz en el mensaje del estado de la configuración
+voiceFlowsUpperLimit INTEGER ::= flowIdUpperLimit
+-- Número máximo de bytes utilizado para incluir información extra
+extraInfoMaxLength INTEGER ::= 300
+-- Número máximo de conjuntos de claves para rekey
+maxRekeySet INTEGER ::= 5
+-- **************************************************************
+--
+-- Data Types
+--
+-- **************************************************************
+-- Identificador de la petición
+RequestIdType ::= INTEGER (0..65535)
+-- Estado del cifrador
+CipherStatusType ::= ENUMERATED {
+starting (0), -- Iniciando
+operative (1), -- Operativo (puede recibir operaciones para cifrar y descifrar)
+zeroized (2), -- Equipo zeroizado. Este estado NO se reporta, se mantiene en la lista para identificar un estado del
+cifrador
+dummy
+
+CipherCommandType ::= ENUMERATED {
+zeroize (0), -- Petición para zeroizar el cifrador: Identificador en el mensaje petición de un sistema tercero a
+cifrador
+-- También se usa en el mensaje de respuesta del cifrador al sistema externo (mensaje response)
+rekey (1), -- Petición para cambiar de clave en el cifrador:
+-- Identificador en el mensaje petición de un sistema tercero a cifrador
+-- También se usa en el mensaje de respuesta del cifrador al sistema externo (mensaje response)
+status (2), -- Petición para obtener el estado del cifrador:
+-- Identificador en el mensaje petición de un sistema tercero a cifrador
+-- La respuesta la envía el cifrador al sistema externo usando el mensaje de estado.
+update (3), -- Petición para actualizar la información de configuración del cifrador.
+-- Identificador en el mensaje petición de un sistema tercero a cifrador
+-- También se usa en el mensaje de respuesta del cifrador al sistema externo (mensaje response)
+config (4) -- Petición para obtener la configuración del cifrador:
+-- Identificador en el mensaje petición de un sistema tercero a cifrador
+-- La respuesta la envía el cifrador al sistema externo usando el mensaje de configuración.
+}
+CipherCommandResultType ::= ENUMERATED {
+ok (0), -- Identificador para el resultado éxito en la operación previa solicitada al cifrador
+error (1) -- Identificador para el resultado error en la operación previa solicitada al cifrador
+}
+-- **************************************************************
+--
+-- Data Messages
+--
+-- **************************************************************
+-- Mensaje para obtener la configuración del cifrador
+CipherConfigurationMessage ::= SEQUENCE {
+-- Serial Number del cifrador
+
+cipherSerialNumber IA5String (SIZE(0..stringUpperLimit)),
+-- Identificador de la misión cargada en el cifrador
+missionID IA5String (SIZE(0..stringUpperLimit)),
+-- Versión de la versión software que se ejecuta en el cifrador
+softwareVersion IA5String (SIZE(0..stringUpperLimit)),
+-- Puerto donde envía el cifrador los eventos del cifrador(BIT)
+portStatusEvent INTEGER (0..portUpperLimit) DEFAULT 10789,
+-- IPs de los sistemas suscritos a recibir los eventos del cifrador (BIT)
+statusEventSubscribers SEQUENCE (SIZE (1..subscribersUpperLimit)) OF IpAddressType,
+-- Listado de identificadores de nodos participantes en la misión.
+cipherIds SEQUENCE (SIZE (0..cipherIdsUpperLimit)) OF CipherId,
+-- Listado de identificadores de grupos multicast
+multicastGroupsIds SEQUENCE (SIZE (0..multicastGroupsIdUpperLimit)) OF CipherId,
+-- Información de todos los flujos de voz configurados en el cifrador (Id, modo, puertos, etc.)
+voiceFlows SEQUENCE (SIZE (0..voiceFlowsUpperLimit)) OF VoiceFlowConfigurationType
+}
+-- Mensaje para reportar el estado del cifrador (el cifrador reporta a un sistema externo)
+CipherStatusMessage ::= SEQUENCE {
+-- Estado del cifrador
+operationStatus CipherStatusType,
+-- Dato de tipo información (texto libre).
+-- El cifrador lo utiliza para ampliar información del error obtenido (si es posible) al realizar la operación
+extraInformation OCTET STRING (SIZE(1..extraInfoMaxLength)) OPTIONAL
+}
+
+-- Mensaje para ejecutar un comando en el cifrador (mensaje de un sistema externo a cifrador)
+CipherOperationRequestMessage ::= SEQUENCE {
+command CipherCommandType, -- Tipo de comando a ejecutar (zeroizar, cambio de clave, etc)
+newReKeySetId INTEGER( 1..maxRekeySet) OPTIONAL -- Identificador del conjunto de nuevas claves para hacer rekey
+}
+-- Mensaje de respuesta a un comando previamente solicitado (mensaje del cifrador a sistema externo)
+CipherOperationResponseMessage ::= SEQUENCE {
+-- Comando ejecutado
+command CipherCommandType,
+-- Resultado de la ejecución del comando
+result CipherCommandResultType,
+-- Dato de tipo información (texto libre).
+-- El cifrador lo utiliza para ampliar información del error obtenido (si es posible) al realizar la operación
+extraInformation OCTET STRING (SIZE(1..extraInfoMaxLength)) OPTIONAL
+}
+-- Mensaje inicial en las operaciones y sus reportes entre un sistema tercero y el cifrador
+CipherMessage ::= SEQUENCE {
+-- Identificador de la operación a realizar / realizada por el cifrador
+requestId RequestIdType,
+-- Tipo de operación a realizar. El sistema tercero o el cifrador completan uno de los mensajes
+message CHOICE {
+-- Mensaje de estado. Utilizado por el cifrador para reportar su estado
+status CipherStatusMessage,
+-- Mensaje de petición de operación: Usado por un sistema tercero para solicitar la ejecución de una orden en el cifrador
+request CipherOperationRequestMessage,
+
+-- Mensaje de respuesta a una operación: Implementado por el cifrador para informar del resultado de la operación previa.
+response CipherOperationResponseMessage,
+-- Mensaje para el cifrado/descifrado de información TDMA. Implementado por el sistema tercero y el cifrador
+tdmaMessage TdmaOperationMessage,
+-- Mensaje para el cifrado/descifrado de dtos IP. Implementado por el sistema tercero y el cifrador
+ipMessage IpOperationMessage,
+-- Mensaje utilizado por el cifrador para reportar la información de configuración cargada.
+config CipherConfigurationMessage,
+-- Mensaje para solicitar un comando sobre un flujo de voz. Lo implementa un tercer sistema y se envía al cifrador
+voiceRequest VoiceOperationRequestMessage,
+-- Mensaje para reportar un comando sobre un flujo de voz. Lo implementa el cifrador y se envía a un tercer sistema.
+voiceResponse VoiceOperationResponseMessage
+}
+}
+END

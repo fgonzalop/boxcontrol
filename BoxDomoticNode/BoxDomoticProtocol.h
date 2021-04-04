@@ -2,6 +2,7 @@ const int MAX_RELAY        = 10;
 const int RADIO_ID_ADDRESS = 0;
 const int RELAY_INDEX      = RADIO_ID_ADDRESS+1;
 const int TEMPERATURE_PIN  = RELAY_INDEX + MAX_RELAY;
+const int PIR_PIN          = TEMPERATURE_PIN + 1;
 
 const unsigned long TIMEOUT = 200;
 

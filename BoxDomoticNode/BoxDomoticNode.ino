@@ -14,6 +14,8 @@ int theRadioNumber;
 int isRouter = 1;
 int theRelayIndex;
 int theTemperaturePin;
+int thePIRPin;
+volatile int thePIR = 0;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -34,7 +36,7 @@ void setup() {
   int aIndex;
   
   Serial.begin(115200);
-  Serial.println(F("BoxDomotic Node 1.0.b"));
+  Serial.println(F("BoxDomotic Node 1.0.c"));
 
   /*
    * EEPROM.write(RADIO_ID_ADDRESS, 2);
@@ -73,7 +75,7 @@ void setup() {
   {
     theRadioNumber = 0xFE;
   }
-  Serial.print("Radio ID:");
+  Serial.print("Radio ID ");
   Serial.println(theRadioNumber);
   
   radio.begin();
@@ -128,9 +130,37 @@ Serial.println("Temperature PIN not configured");
    else
    {
 Serial.print("Configuring Temperature pin ");
-Serial.println(theTemperaturePin);   
+Serial.print(theTemperaturePin); 
+Serial.print(" ");  
 Temperature();
+Serial.println(" OK");
   }
+  
+  //EEPROM.write(PIR_PIN, 3);// pin 3 PIR
+  thePIRPin = EEPROM.read(PIR_PIN);
+
+  if (thePIRPin == 0xFF)
+  {
+    Serial.println("PIR not configured");  
+  }
+  else
+  {
+     Serial.print("Configuring PIR pin ");
+     Serial.print(thePIRPin); 
+     pinMode(thePIRPin, INPUT_PULLUP);
+     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, RISING);
+     
+     Serial.println(" OK");
+  }
+  
+}
+
+/*
+ * PIR_ISR 
+ */
+void PIR_ISR()
+{
+    thePIR++;  
 }
 
 /*
@@ -257,6 +287,7 @@ Serial.println("Routing msg");
       //delay (10);
    }
    delay (10);
+   //Serial.print(thePIR);
 
 } // Loop
 
@@ -419,10 +450,11 @@ void Temperature()
   for ( i = 0; i < 9; i++) 
   {           // we need 9 bytes
     data[i] = ds.read();
-    Serial.print(data[i], HEX);
-    Serial.print(" ");
+    //Serial.print(data[i], HEX);
+    //Serial.print(" ");
   }
-  Serial.println();
+  //Serial.println();
+  
   // Convert the data to actual temperature
   // because the result is a 16 bit signed integer, it should
   // be stored to an "int16_t" type, which is always 16 bits
@@ -446,7 +478,7 @@ void Temperature()
   celsius = (float)raw / 16.0;
   
   theTemperature = (int) (celsius * 2.0); //Resolución de 0,5 grados.
-  Serial.println(celsius);
+  Serial.print(celsius);
 }
 
 /*
