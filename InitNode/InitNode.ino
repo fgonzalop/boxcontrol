@@ -29,8 +29,10 @@ void setup() {
   int aIndex;
   
   Serial.begin(115200);
+  Serial.println("#######");
   Serial.println(F("INIT BoxDomotic Node 1.0"));
   Serial.println(THE_NAME);
+  Serial.println("#######");
   
   EEPROM.write(RADIO_ID_ADDRESS, THE_RADIO_ID);
   EEPROM.write(RELAY_INDEX, THE_RELAY_INDEX); //1 relay operativo
@@ -49,12 +51,14 @@ void setup() {
   EEPROM.write(LUX_PIN, THE_LUX_PIN);
   
   // Read and show  
-  Serial.println("ID ADDRESS:");
-  for (int aIndex = 0; aIndex<20; aIndex++)
+  Serial.print("ID ADDRESS: ");
+  for (int aIndex = 0; aIndex<=LUX_PIN; aIndex++) //TBD el máximo puede cambiar
   {
      Serial.println(EEPROM.read(RADIO_ID_ADDRESS+aIndex));
   }
 
+  Serial.println("#######");
+  
   // Configure and check
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
   if (theRadioNumber == 0xFF)
