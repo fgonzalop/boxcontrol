@@ -12,9 +12,9 @@
 "relay_5":255,
 "relay_6":255,
 "relay_7":255,
-"relay_8":1255,
+"relay_8":255,
 "relay_9":255,
 "temperatura":255,
 "PIR":255,
-"Lux":255
+"Lux":7
 }

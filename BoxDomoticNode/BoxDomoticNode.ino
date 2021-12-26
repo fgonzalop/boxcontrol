@@ -39,9 +39,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println(F("BoxDomotic Node 1.0.c"));
 
-  /*
-   * EEPROM.write(RADIO_ID_ADDRESS, 2);
-   * EEPROM.write(RELAY_INDEX, 255); //1 relay operativo
+  
+ /*EEPROM.write(RADIO_ID_ADDRESS, 3);
+  EEPROM.write(RELAY_INDEX, 255); //1 relay operativo
   EEPROM.write(RELAY_INDEX+1, 255);// pin 2 de relay (0)
   EEPROM.write(RELAY_INDEX+2, 255);// pin 2 de relay (0)
   EEPROM.write(RELAY_INDEX+3, 255);// pin 2 de relay (0)
@@ -51,10 +51,10 @@ void setup() {
   EEPROM.write(RELAY_INDEX+7, 255);// pin 2 de relay (0)
   EEPROM.write(RELAY_INDEX+8, 255);// pin 2 de relay (0)
   EEPROM.write(RELAY_INDEX+9, 255);// pin 2 de relay (0)
-  */
+ */
   
   //
-  /*
+/*  
   Serial.println("ID ADDRESS:");
   Serial.println(EEPROM.read(RADIO_ID_ADDRESS));
   Serial.println(EEPROM.read(RELAY_INDEX));
@@ -68,7 +68,7 @@ void setup() {
   Serial.println(EEPROM.read(RELAY_INDEX+8));
   Serial.println(EEPROM.read(RELAY_INDEX+9));
   Serial.println(EEPROM.read(RELAY_INDEX+10));
-  */
+ */
   //
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -192,6 +192,7 @@ void loop()
 {
    if (isWaitingRouting)
    {
+Serial.print(".");
       if ((theTimeForTimeout + theTimeout) < millis())
       {
 Serial.println("Timeout");

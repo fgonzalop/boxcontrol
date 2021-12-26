@@ -1,0 +1,26 @@
+raspberry pi: 192.168.100.199
+pi
+raspberry
+
+/home/pi/BoxDomotic.py
+/home/pi/BoxDomotic.json
+
+sudo python ./BoxDomotic.py
+
+COCHERA
+BoxDomotic Node 1.0.c
+Radio ID 3
+Relay's not configured
+Configuring Temperature pin 4 16.94 OK
+Configuring PIR pin 3 OK
+Configuring LUX pin 7 0.86 OK
+
+
+/home/pi/rf24libs/RF24/examples_linux
+
+boxdomoticMaster (exe)
+utiliza BoxDomotic_topologia.json, BoxDomotic_messages.json
+
+NO consigo que se manden mensajes entre PI y Ard-3.
+utilizo /Documents/GettingStarted/*.ino con ID = 2 e ID = 3 y con los m_2 y m_3 de PI funcionan.
+
