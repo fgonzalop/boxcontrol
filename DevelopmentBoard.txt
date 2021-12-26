@@ -27,7 +27,9 @@ utilizo /Documents/GettingStarted/*.ino con ID = 2 e ID = 3 y con los m_2 y m_3 
 Creada una aplicacion para los valores iniciales de configuración basado en JSON y H (INITNODE)
 
 Probar el nodo 3 como relay de 2 y 1.
-Probar el nodo 3 con Temperature, PIR y LUX.
+Probado el nodo 3(como relay) y nodo 2, conectado a un RELE y enciende y apaga.
+ 
+Probar el nodo 3 con Temperature, PIR y LUX. Modulo real.
 
 Implementar Persiana (%) para RELAY
 Probar Persiana (%)

@@ -37,7 +37,7 @@ void setup() {
   int aIndex;
   
   Serial.begin(115200);
-  Serial.println(F("BoxDomotic Node 1.0.c"));
+  Serial.println(F("BoxDomotic Node 1.0.d"));
 
   
  /*EEPROM.write(RADIO_ID_ADDRESS, 3);
@@ -121,7 +121,6 @@ Serial.println(theRelayIndex);
      }
 
    }
-//EEPROM.write(TEMPERATURE_PIN, 4);// pin 4 Temperatura
 
    theTemperaturePin = EEPROM.read(TEMPERATURE_PIN);
    if (theTemperaturePin == 0xFF)
@@ -137,7 +136,6 @@ Temperature();
 Serial.println(" OK");
   }
   
-  //EEPROM.write(PIR_PIN, 3);// pin 3 PIR
   thePIRPin = EEPROM.read(PIR_PIN);
 
   if (thePIRPin == 0xFF)
@@ -154,7 +152,6 @@ Serial.println(" OK");
      Serial.println(" OK");
   }
   
-  //EEPROM.write(LUX_PIN, 7);// pin 7 LUX
   theLuxPin = EEPROM.read(LUX_PIN);
 
   if (theLuxPin == 0xFF)
@@ -252,13 +249,10 @@ Serial.println(millis());
    }else
    {
       if ((payload_r.hop1 == theRadioNumber) && ((payload_r.messageId % 2) == 0))
-      {  
-Serial.println("mio");   
+      {    
         if (payload_r.hop2 == 0)
         {
-Serial.println("Rx");
           // mensaje directo
-Serial.print(payload_r.origen);
           radio.stopListening();                                        // First, stop listening so we can talk   
           //delay (10);
           payload_original = payload_r;
@@ -270,7 +264,8 @@ Serial.print(payload_r.origen);
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
           delay (10);      
           radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-          Perform(payload_r.action);   
+Serial.print("requesting..." );
+		  Perform(payload_original.action);   
 Serial.println(F("Sent response "));
         }else
         { 
@@ -405,6 +400,9 @@ Serial.println(aResult.action2);
 
 void Perform(answer_t aAction)
 {
+Serial.print(" ");
+Serial.print(aAction.action1);
+Serial.print(" ");
   switch (aAction.action1)
   {
     case REQUEST_TEMPERATURE_ACTION:

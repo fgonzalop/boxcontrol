@@ -1,7 +1,7 @@
 const String THE_NAME     = "CALEFACCION P1";
 const int THE_RADIO_ID    = 2;
-const int THE_RELAY_INDEX = 255;
-const int THE_RELAY_0     = 255;
+const int THE_RELAY_INDEX = 2;
+const int THE_RELAY_0     = 5;
 const int THE_RELAY_1     = 255;
 const int THE_RELAY_2     = 255;
 const int THE_RELAY_3     = 255;
