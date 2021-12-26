@@ -5,7 +5,11 @@
 #include <EEPROM.h>
 #include <SPI.h>
 #include "RF24.h"
-#include "Cochera.h"
+
+//#include "Cochera.h"
+#include "CalefaccionP1.h"
+//#include "CalefaccionP0.h"
+
 #include "BoxDomoticProtocol.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */

@@ -24,3 +24,10 @@ utiliza BoxDomotic_topologia.json, BoxDomotic_messages.json
 NO consigo que se manden mensajes entre PI y Ard-3.
 utilizo /Documents/GettingStarted/*.ino con ID = 2 e ID = 3 y con los m_2 y m_3 de PI funcionan.
 
+Creada una aplicacion para los valores iniciales de configuración basado en JSON y H (INITNODE)
+
+Probar el nodo 3 como relay de 2 y 1.
+Probar el nodo 3 con Temperature, PIR y LUX.
+
+Implementar Persiana (%) para RELAY
+Probar Persiana (%)
