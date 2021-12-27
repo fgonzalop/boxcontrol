@@ -11,8 +11,8 @@ const int THE_RELAY_6     = 255;
 const int THE_RELAY_7     = 255;
 const int THE_RELAY_8     = 255;
 const int THE_RELAY_9     = 255;
-const int THE_TEMPERATURE_PIN = 4;
-const int THE_PIR_PIN     = 3;
-const int THE_LUX_PIN     = 255;
+const int THE_TEMPERATURE_PIN = 255;
+const int THE_PIR_PIN     = 255;
+const int THE_LUX_PIN     = 7;
 
 // tbd "relay_off":"LOW",

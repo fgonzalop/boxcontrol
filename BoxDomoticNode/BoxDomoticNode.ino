@@ -159,11 +159,12 @@ Serial.println(" OK");
     Serial.println("LUX not configured");  
   }
   else
-  {
+  {     
      Serial.print("Configuring LUX pin ");
      Serial.print(theLuxPin); 
      Serial.print(" ");
-     int sensorValue = analogRead(A7);//TBD
+     theLuxPin = A7; //TBD
+     int sensorValue = analogRead(theLuxPin);
      // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
      float voltage = sensorValue * (5.0 / 1023.0);
      // print out the value you read:
@@ -506,5 +507,11 @@ void Temperature()
  */
 unsigned long AnswerLux(answer_t aAction)
 {
-   return theTemperature; //TBD
+    int sensorValue = analogRead(theLuxPin);
+    // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+    float voltage = sensorValue * (5.0 / 1023.0);
+    // print out the value you read:
+//    Serial.print(voltage);
+     
+    return (int)(voltage* 255.0/5.0);
 }

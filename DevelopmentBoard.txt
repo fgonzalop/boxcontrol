@@ -28,7 +28,9 @@ Creada una aplicacion para los valores iniciales de configuración basado en JSO
 
 Probar el nodo 3 como relay de 2 y 1.
 Probado el nodo 3(como relay) y nodo 2, conectado a un RELE y enciende y apaga.
- 
+
+Probar el modo LUX.
+
 Probar el nodo 3 con Temperature, PIR y LUX. Modulo real.
 
 Implementar Persiana (%) para RELAY
