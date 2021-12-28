@@ -15,7 +15,9 @@ int isRouter = 1;
 int theRelayIndex;
 int theTemperaturePin;
 int thePIRPin;
-volatile int thePIR = 0;
+volatile unsigned long thePIR_START = 0;
+volatile unsigned long thePIR_END = 0;
+volatile int thePIR_Count = 0;
 int theLuxPin;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
@@ -37,39 +39,9 @@ void setup() {
   int aIndex;
   
   Serial.begin(115200);
-  Serial.println(F("BoxDomotic Node 1.0.d"));
-
-  
- /*EEPROM.write(RADIO_ID_ADDRESS, 3);
-  EEPROM.write(RELAY_INDEX, 255); //1 relay operativo
-  EEPROM.write(RELAY_INDEX+1, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+2, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+3, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+4, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+5, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+6, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+7, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+8, 255);// pin 2 de relay (0)
-  EEPROM.write(RELAY_INDEX+9, 255);// pin 2 de relay (0)
- */
-  
-  //
-/*  
-  Serial.println("ID ADDRESS:");
-  Serial.println(EEPROM.read(RADIO_ID_ADDRESS));
-  Serial.println(EEPROM.read(RELAY_INDEX));
-  Serial.println(EEPROM.read(RELAY_INDEX+1));
-  Serial.println(EEPROM.read(RELAY_INDEX+2));
-  Serial.println(EEPROM.read(RELAY_INDEX+3));
-  Serial.println(EEPROM.read(RELAY_INDEX+4));
-  Serial.println(EEPROM.read(RELAY_INDEX+5));
-  Serial.println(EEPROM.read(RELAY_INDEX+6));
-  Serial.println(EEPROM.read(RELAY_INDEX+7));
-  Serial.println(EEPROM.read(RELAY_INDEX+8));
-  Serial.println(EEPROM.read(RELAY_INDEX+9));
-  Serial.println(EEPROM.read(RELAY_INDEX+10));
- */
-  //
+  Serial.println(F("*********************"));
+  Serial.println(F("BoxDomotic Node 1.0.e"));
+  Serial.println(F("*********************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
   if (theRadioNumber == 0xFF)
@@ -147,7 +119,7 @@ Serial.println(" OK");
      Serial.print("Configuring PIR pin ");
      Serial.print(thePIRPin); 
      pinMode(thePIRPin, INPUT_PULLUP);
-     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, RISING);
+     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, CHANGE);
      
      Serial.println(" OK");
   }
@@ -174,11 +146,22 @@ Serial.println(" OK");
 }
 
 /*
- * PIR_ISR 
+ * PIR_ISR
  */
 void PIR_ISR()
 {
-    thePIR++;  
+    thePIR_Count++;
+
+    if (thePIR_Count % 2)
+    {
+      thePIR_START = millis();
+    }
+    else
+    {
+      thePIR_END = millis();
+    }
+      
+    
 }
 
 /*
@@ -382,6 +365,18 @@ Serial.print(aAction.action2);
 Serial.print(")");
 Serial.println(aResult.action2);
        break;   
+    case REQUEST_PIR_ACTION:
+      aResult.action1 = SUCCESS_ANSWER;
+      aResult.action2 = 10; //TBD
+Serial.print("PIR... ");
+Serial.print(thePIR_START);  
+Serial.print(" ");
+Serial.print(thePIR_END);  
+Serial.print(" ");
+Serial.print(thePIR_Count);  
+Serial.print(" ");
+Serial.print((int)(millis()-thePIR_START));     
+      break;
     default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
