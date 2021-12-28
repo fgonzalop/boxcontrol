@@ -38,7 +38,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println(F("*********************"));
-  Serial.println(F("BoxDomotic Node 1.0.e"));
+  Serial.println(F("BoxDomotic Node 1.0.f"));
   Serial.println(F("*********************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
