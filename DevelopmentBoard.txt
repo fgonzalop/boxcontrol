@@ -38,7 +38,7 @@ Probado con el NODE 3, y una resistencia de 10k en breadboard.
 Probar el nodo 3 con Temperature, PIR y LUX. Modulo real, con la fuente de alimentación.
 Probado e instalado el módulo 3 (Cochera), version 1.0.e.
 
-Empezamos con los módulos 2 (calefaccion P0). Recibe datos, pero fallan 7 y 4. REQUEST_OFF_RELAY se 
+Empezamos con los módulos 2 (calefaccion P0). Recibe datos, pero fallan 4 (se enciende el siguiente) y . REQUEST_OFF_RELAY se 
 enciende el led del relé.
 
 Implementar Persiana (%) para RELAY

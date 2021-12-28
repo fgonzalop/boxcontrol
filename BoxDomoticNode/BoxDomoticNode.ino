@@ -350,6 +350,8 @@ Serial.println(aResult.action2);
 Serial.print("OFF_RELAY (");
 Serial.print(aAction.action2);
 Serial.print(")");
+Serial.print(theRelay[aAction.action2]);
+Serial.print(" ");
 Serial.println(aResult.action2);
        break;   
     case REQUEST_PIR_ACTION:
