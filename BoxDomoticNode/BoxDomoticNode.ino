@@ -374,7 +374,30 @@ Serial.print((int)(millis()-thePIR_START)/1000);
     case REQUEST_RELAY_STATUS_ACTION:
       aResult.action1 = SUCCESS_ANSWER;   
       aResult.action2 = 0; 
-Serial.print("RELAY STATUS... ");
+Serial.println("RELAY STATUS... ");
+      int aResultado = 0;
+      if (theRelayIndex <= 8)
+      {
+        for (int aIndex=0; aIndex<theRelayIndex; aIndex++)
+        {
+          aResultado= aResultado*2 + digitalRead(theRelay[aIndex]);
+        } 
+        aResult.action2 = aResultado;
+        aResult.action3 = 0;
+      }
+      else
+      {          
+          for (int aIndex=0; aIndex<8; aIndex++)
+          {
+//Serial.println(aResultado);
+            aResultado= aResultado*2 + digitalRead(theRelay[aIndex]);
+          } 
+          aResult.action2 = aResultado;
+          aResult.action3 = digitalRead(theRelay[9]);   
+      }
+      Serial.println(aResult.action2);
+      Serial.println(aResult.action3);
+      
       break;
       
     default:

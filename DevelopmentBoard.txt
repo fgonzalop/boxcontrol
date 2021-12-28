@@ -44,7 +44,8 @@ Corregido el error del PIN/RELE 5. Comprobación de los 8 relés. Comprobado.
 
 Comprobamos módulo 2 (calefacción P1). Comprobado PIN 5 y 8 de relés. 
 
-Implementar REQUEST_RELAY_STATUS_ACTION. No está implementado en RASPBERRY.
+Implementar REQUEST_RELAY_STATUS_ACTION. No está implementado en RASPBERRY. Implementado y probado en NODE 2 y 1, 8 y 9 relés.
+Implementado en RASPBERRY.
 
 Implementar Persiana (%) para RELAY
 Probar Persiana (%)

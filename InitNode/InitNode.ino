@@ -7,8 +7,8 @@
 #include "RF24.h"
 
 //#include "Cochera.h"
-#include "CalefaccionP1.h"
-//#include "CalefaccionP0.h"
+//#include "CalefaccionP1.h"
+#include "CalefaccionP0.h"
 
 #include "BoxDomoticProtocol.h"
 
