@@ -42,7 +42,9 @@ Empezamos con los módulos 1 (calefaccion P0). Recibe datos, pero fallan 4 (se e
 enciende el led del relé.
 Corregido el error del PIN/RELE 5. Comprobación de los 8 relés. Comprobado.
 
-Comprobamos módulo 2 (calefacción P1).
+Comprobamos módulo 2 (calefacción P1). Comprobado PIN 5 y 8 de relés. 
+
+Implementar REQUEST_RELAY_STATUS_ACTION. No está implementado en RASPBERRY.
 
 Implementar Persiana (%) para RELAY
 Probar Persiana (%)

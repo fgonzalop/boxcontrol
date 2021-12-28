@@ -371,10 +371,18 @@ Serial.print((int)(millis()-thePIR_START)/1000);
          
       thePIR_START = 0;
       break;
+    case REQUEST_RELAY_STATUS_ACTION:
+      aResult.action1 = SUCCESS_ANSWER;   
+      aResult.action2 = 0; 
+Serial.print("RELAY STATUS... ");
+      break;
+      
     default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
-Serial.print("DEFAULT ");
+Serial.print("DEFAULT ( ");
+Serial.print(aAction.action1);
+Serial.print(" )");
 Serial.println(aResult.action2);
        break;
   }

@@ -86,7 +86,10 @@ int ConvertTxt(string aTxt)
 	
 	if (aTxt == "REQUEST_OFF_RELAY_ACTION")
 		return REQUEST_OFF_RELAY_ACTION;
-		
+	
+	if (aTxt == "REQUEST_RELAY_STATUS_ACTION")
+		return REQUEST_RELAY_STATUS_ACTION;
+	
 	return 0;
 }
 
