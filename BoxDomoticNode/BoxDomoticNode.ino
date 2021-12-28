@@ -16,8 +16,6 @@ int theRelayIndex;
 int theTemperaturePin;
 int thePIRPin;
 volatile unsigned long thePIR_START = 0;
-volatile unsigned long thePIR_END = 0;
-volatile int thePIR_Count = 0;
 int theLuxPin;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
@@ -119,7 +117,7 @@ Serial.println(" OK");
      Serial.print("Configuring PIR pin ");
      Serial.print(thePIRPin); 
      pinMode(thePIRPin, INPUT_PULLUP);
-     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, CHANGE);
+     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, RISING);
      
      Serial.println(" OK");
   }
@@ -150,18 +148,7 @@ Serial.println(" OK");
  */
 void PIR_ISR()
 {
-    thePIR_Count++;
-
-    if (thePIR_Count % 2)
-    {
-      thePIR_START = millis();
-    }
-    else
-    {
-      thePIR_END = millis();
-    }
-      
-    
+   thePIR_START = millis();
 }
 
 /*
@@ -366,16 +353,21 @@ Serial.print(")");
 Serial.println(aResult.action2);
        break;   
     case REQUEST_PIR_ACTION:
-      aResult.action1 = SUCCESS_ANSWER;
-      aResult.action2 = 10; //TBD
+      aResult.action1 = SUCCESS_ANSWER;    
 Serial.print("PIR... ");
 Serial.print(thePIR_START);  
 Serial.print(" ");
-Serial.print(thePIR_END);  
-Serial.print(" ");
-Serial.print(thePIR_Count);  
-Serial.print(" ");
-Serial.print((int)(millis()-thePIR_START));     
+Serial.print((int)(millis()-thePIR_START)/1000);  
+      if (thePIR_START == 0)
+      {
+          aResult.action2 = 0; 
+      }
+      else
+      {
+          aResult.action2 = (int)(millis()-thePIR_START)/1000;
+      }
+         
+      thePIR_START = 0;
       break;
     default:
        aResult.action1 = NO_ANSWER;

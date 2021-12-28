@@ -33,7 +33,7 @@ Probado el módulo real 3 sin la fuente de alimentación, TRA (OK), conectado el
 Version 1.0.e, para el PIR feature.
 Con el potenciometro de repetición a tope izquierdas, 2,5 sg entre subida y bajada.
 Cambio a un sólo RAISING, y cuando se lea se borra. Se devuelve el valor almacenado - el actual,
-es decir, el tiempo transcurrido desde que se detectó y se ha pedido.
+es decir, el tiempo transcurrido desde que se detectó y se ha pedido. Probado OK.
 
 Probar el modo LUX. Probado con el NODE 3, y una resistencia de 10k en breadboard.
 Probar el nodo 3, LUX.
