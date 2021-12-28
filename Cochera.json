@@ -1,6 +1,6 @@
 { 
 "nombre":"cochera",
-"version":"1.0.a",
+"version":"1.0.d",
 "id":3,
 "relay_index":255,
 "relay_off":"LOW",
@@ -14,7 +14,7 @@
 "relay_7":255,
 "relay_8":255,
 "relay_9":255,
-"temperatura":255,
-"PIR":255,
-"Lux":255
+"temperatura":4,
+"PIR":3,
+"Lux":7
 }
