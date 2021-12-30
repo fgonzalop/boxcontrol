@@ -18,8 +18,8 @@ const int REQUEST_PIR_ACTION          = 0x04;
 const int REQUEST_ON_RELAY_ACTION     = 0x05;
 const int REQUEST_OFF_RELAY_ACTION    = 0x06;
 const int REQUEST_RELAY_STATUS_ACTION = 0x07;
-
-
+const int REQUEST_ROLLER_ON           = 0x08; // Valor seguido de los segundos de ON del relé
+const int REQUEST_ROLLER_OFF          = 0x09; // Valor seguido de los segundos de OFF del relé
 
 typedef uint8_t byte;
 
