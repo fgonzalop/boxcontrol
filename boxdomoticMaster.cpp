@@ -90,6 +90,11 @@ int ConvertTxt(string aTxt)
 	if (aTxt == "REQUEST_RELAY_STATUS_ACTION")
 		return REQUEST_RELAY_STATUS_ACTION;
 	
+	if (aTxt == "REQUEST_ROLLER_ON")
+		return REQUEST_ROLLER_ON;
+	
+	if (aTxt == "REQUEST_ROLLER_OFF")
+		return REQUEST_ROLLER_OFF;
 	return 0;
 }
 
