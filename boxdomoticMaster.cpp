@@ -182,6 +182,7 @@ struct payload_t {
 	//aAction = theMessagesArray[0]["action1"].asString(); 
 	payload.action.action1 = ConvertTxt(theMessagesArray[0]["action1"].asString());
 	payload.action.action2 = theMessagesArray[0]["action2"].asUInt();
+	payload.action.action3 = 0xFF;
 	payload.hop1 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop1"].asUInt();
 	payload.hop2 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop2"].asUInt();
 	payload.hop3 = theDevicesArray[theMessagesArray[0]["id_dispositivo"].asUInt()]["hop3"].asUInt();
@@ -200,11 +201,12 @@ struct payload_t {
 
 		printf("Now sending...");
 		sent_time = millis();
-		printf("Sent payload(%d) IP= %d. msgId=%d. act1=%d.act2=%d.spa=%d.hop1=%d.hop2=%d.hop3=%d.hop4=%d.hop5=%d.hop6=%d.hop7=%d\n", sizeof(payload_t), 
+		printf("Sent payload(%d) IP= %d. msgId=%d. act1=%d.act2=%d.act3=%d.spa=%d.hop1=%d.hop2=%d.hop3=%d.hop4=%d.hop5=%d.hop6=%d.hop7=%d\n", sizeof(payload_t), 
 						payload.origen,
 						payload.messageId, 
 						payload.action.action1, 
 						payload.action.action2,
+						payload.action.action3,
 						payload.spare,
 						payload.hop1,
 						payload.hop2,
@@ -245,11 +247,12 @@ struct payload_t {
 
 				// Spew it
 				printf("Got response round-trip delay: %lu\n", millis() - sent_time);
-				printf("Got payload(%d) IP= %d. msgId=%d. act1=%d.act2=%d.spa=%d.hop1=%d.hop2=%d.hop3=%d.hop4=%d.hop5=%d.hop6=%d.hop7=%d\n", sizeof(payload_t), 
+				printf("Got payload(%d) IP= %d. msgId=%d. act1=%d.act2=%d.act3=%d.spa=%d.hop1=%d.hop2=%d.hop3=%d.hop4=%d.hop5=%d.hop6=%d.hop7=%d\n", sizeof(payload_t), 
 						payload_rx.origen,
 						payload_rx.messageId, 
 						payload_rx.action.action1, 
 						payload_rx.action.action2,
+						payload_rx.action.action3,
 						payload_rx.spare,
 						payload_rx.hop1,
 						payload_rx.hop2,
