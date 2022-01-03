@@ -30,7 +30,7 @@ unsigned long theTimeout = TIMEOUT;
 int aCounter = 0;
 answer_t aAnswer;
 
-unsigned long theTemperature = 20;
+float theTemperature = 20.0;
 int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
 
 void setup() {
@@ -286,15 +286,19 @@ Serial.println("Routing msg");
 answer_t Answer(answer_t aAction)
 {
   answer_t aResult;
+  float aTemperature;
   switch (aAction.action1)
   {
     case REQUEST_TEMPERATURE_ACTION:
        aResult.action1 = SUCCESS_ANSWER;
-       aResult.action2 = AnswerTemperature(aAction);
+       aTemperature = AnswerTemperature(aAction);
+       aResult.action2 = (int)(aTemperature);
+       aResult.action3 = (int)((aTemperature - (int)aTemperature)*100);
 Serial.print("Temperature (");
 Serial.print(aAction.action2);
 Serial.print(")");
 Serial.println(aResult.action2);
+Serial.println(aResult.action3);
        break;
     case REQUEST_LUX_ACTION:
        aResult.action1 = SUCCESS_ANSWER;
@@ -438,7 +442,7 @@ Serial.print(" ");
  * Procedure ANSWER (TEMPERATURE)
  *    Aquí se devuelve la temperatura última leída.
  */
-unsigned long AnswerTemperature(answer_t aAction)
+float AnswerTemperature(answer_t aAction)
 {
    return theTemperature;
 }
@@ -453,7 +457,7 @@ void PerformTemperature(answer_t aAction)
   //OneWire  ds(aAction.action2);
   if (theTemperaturePin == 0xFF)
   {
-    theTemperature = 25;//Valor por defecto
+    theTemperature = 25.0;//Valor por defecto
     return;      
   }
   else
@@ -474,7 +478,7 @@ void Temperature()
   
   if (!ds.search(addr))
   {
-    theTemperature = 25;//TBD
+    theTemperature = 25.0;//TBD
     return;
   }
   
@@ -517,7 +521,7 @@ void Temperature()
   
   celsius = (float)raw / 16.0;
   
-  theTemperature = (int) (celsius * 2.0); //Resolución de 0,5 grados.
+  theTemperature = celsius;
   Serial.print(celsius);
 }
 
