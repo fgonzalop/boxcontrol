@@ -1,0 +1,34 @@
+#######
+INIT BoxDomotic Node 1.0
+TEST
+#######
+ID ADDRESS: 3
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+4
+255
+255
+#######
+Radio ID 3
+Relay's not configured
+Configuring Temperature pin 4  OK
+PIR not configured
+LUX not configured
+
+
+*********************
+BoxDomotic Node 1.0.f
+*********************
+Radio ID 3
+Relay's not configured
+Configuring Temperature pin 4 16.12 OK
+PIR not configured
+LUX not configured
