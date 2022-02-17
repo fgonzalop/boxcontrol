@@ -1,5 +1,5 @@
 const String THE_NAME     = "TEST";
-const int THE_RADIO_ID    = 4;
+const int THE_RADIO_ID    = 6;
 const int THE_RELAY_INDEX = 255;
 const int THE_RELAY_0     = 255;
 const int THE_RELAY_1     = 255;

@@ -1,0 +1,9 @@
+topologia
+node localización
+0 Raspberry-Sotano
+1 Calefaccion p0
+2 Calefaccion p1
+3 Cochera
+4 Lavadero
+5 Dormitorio p1
+6 Buhardilla
