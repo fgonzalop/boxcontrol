@@ -1,0 +1,103 @@
+#######
+INIT BoxDomotic Node 1.0
+TEST
+#######
+ID ADDRESS: 7
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+#######
+Radio ID 7
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+
+
+*********************
+BoxDomotic Node 1.0.f
+*********************
+Radio ID 7
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+
+#######
+INIT BoxDomotic Node 1.0.1
+TEST
+#######
+ID ADDRESS: 7
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+#######
+Radio ID 7
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+
+****************************
+BoxDomotic Master Node 1.0.0
+****************************
+Radio ID 7
+Master Rx:1
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+RX payload:3 6 0 19 68 0
+
+****************************
+BoxDomotic Master Node 1.0.0
+****************************
+Radio ID 7
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+Master Rx:1
+RX payload:100 0 2 0 0 0
+RX payload:100 0 2 0 0 0
+RX payload:101 6 0 19 62 0
+RX payload:100 0 2 0 0 0
+RX payload:100 0 2 0 0 0
+RX payload:101 6 0 19 62 0
+RX payload:100 0 2 0 0 0
+RX payload:100 0 2 0 0 0
+RX payload:100 0 2 0 0 0
+RX payload:101 6 0 19 62 0
+RX payload:100 0 2 0 0 0
+RX payload:101 6 0 19 62 0
+RX payload:100 0 2 0 0 0
+RX payload:100 0 2 0 0 0
+RX payload:100 0 2 0 0 0
+RX payload:101 6 0 19 62 0
+RX payload:100 0 2 0 0 0
+RX payload:101 6 0 19 68 0
+RX payload:100 0 2 0 0 0
+
+
+

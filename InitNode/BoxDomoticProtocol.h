@@ -4,6 +4,7 @@ const int RELAY_INDEX      = RADIO_ID_ADDRESS+1;
 const int TEMPERATURE_PIN  = RELAY_INDEX + MAX_RELAY;
 const int PIR_PIN          = TEMPERATURE_PIN + 1;
 const int LUX_PIN          = PIR_PIN + 1;
+const int MASTER_TX_PIN    = LUX_PIN +1;
 
 const unsigned long TIMEOUT = 200;
 

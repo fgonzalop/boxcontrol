@@ -1,0 +1,39 @@
+#######
+INIT BoxDomotic Node 1.0.1
+TEST
+#######
+ID ADDRESS: 8
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+255
+1
+#######
+Radio ID 8
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+
+****************************
+BoxDomotic Master Node 1.0.0
+****************************
+Radio ID 8
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+Master Rx:0
+TX ...OK
+TX ...OK
+TX ...OK
+

@@ -35,7 +35,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println("#######");
-  Serial.println(F("INIT BoxDomotic Node 1.0"));
+  Serial.println(F("INIT BoxDomotic Node 1.0.1"));
   Serial.println(THE_NAME);
   Serial.println("#######");
   
@@ -54,10 +54,11 @@ void setup() {
   EEPROM.write(TEMPERATURE_PIN, THE_TEMPERATURE_PIN);
   EEPROM.write(PIR_PIN, THE_PIR_PIN);
   EEPROM.write(LUX_PIN, THE_LUX_PIN);
+  EEPROM.write(MASTER_TX_PIN, THE_MASTER_TX);
   
   // Read and show  
   Serial.print("ID ADDRESS: ");
-  for (int aIndex = 0; aIndex<=LUX_PIN; aIndex++) //TBD el máximo puede cambiar
+  for (int aIndex = 0; aIndex<=MASTER_TX_PIN; aIndex++) //TBD el máximo puede cambiar
   {
      Serial.println(EEPROM.read(RADIO_ID_ADDRESS+aIndex));
   }
