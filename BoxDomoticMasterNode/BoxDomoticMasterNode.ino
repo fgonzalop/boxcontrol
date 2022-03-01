@@ -19,6 +19,8 @@ volatile unsigned long thePIR_START = 0;
 int theLuxPin;
 bool RxWaiting = true;
 int theCurrentMessage = 0;
+int theMaxMessages;
+unsigned long last_time_message;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -40,7 +42,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("****************************"));
-  Serial.println(F("BoxDomotic Master Node 1.0.2"));
+  Serial.println(F("BoxDomotic Master Node 1.0.3"));
   Serial.println(F("****************************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -167,7 +169,7 @@ Serial.println(" OK");
   theRouting[aIndex].hop7    = 0;
 
   aIndex = 1;
-  theRouting[aIndex].messageId = 100;
+  theRouting[aIndex].messageId = 102;
   theRouting[aIndex].hop1      = 6;
   theRouting[aIndex].origen    = theRadioNumber;
   theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
@@ -178,6 +180,23 @@ Serial.println(" OK");
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
+
+  aIndex = 2;
+  theRouting[aIndex].messageId = 104;
+  theRouting[aIndex].hop1      = 6;
+  theRouting[aIndex].origen    = theRadioNumber;
+  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
+  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].hop2    = 5;
+  theRouting[aIndex].hop3    = 4;
+  theRouting[aIndex].hop4    = 0;
+  theRouting[aIndex].hop5    = 0;
+  theRouting[aIndex].hop6    = 0;
+  theRouting[aIndex].hop7    = 0;
+
+  theMaxMessages = 2;
+  
+  last_time_message = millis();
 }
 
 /*
@@ -202,32 +221,36 @@ void loop()
 		  payload_r.messageId=1; //Only to enter once
 		  radio.read( &payload_r, sizeof(payload_t) ); 
 			
-Serial.print("RX payload:");
-Serial.print(payload_r.messageId);
-Serial.print(" ");
-Serial.print(payload_r.origen);
-Serial.print(" ");
-Serial.print(payload_r.hop1);
-Serial.print(" ");
-Serial.print(payload_r.hop2);
-Serial.print(" ");
-Serial.print(payload_r.hop3);
-Serial.print(" ");
-Serial.print(payload_r.hop4);
-Serial.print(" ");
-Serial.print(payload_r.hop5);
-Serial.print(" ");
-Serial.print(payload_r.hop6);
-Serial.print(" ");
-Serial.print(payload_r.hop7);
-Serial.print(" ");
-Serial.print(payload_r.action.action1);
-Serial.print(" ");
-Serial.print(payload_r.action.action2);
-Serial.print(" ");
-Serial.print(payload_r.action.action3);
-Serial.print(" ");
-Serial.println(payload_r.action.action4);
+      Serial.print("RX payload:");
+      Serial.print(payload_r.messageId);
+      Serial.print(" ");
+      Serial.print(payload_r.origen);
+      Serial.print(" ");
+      Serial.print(payload_r.hop1);
+      Serial.print(" ");
+      Serial.print(payload_r.hop2);
+      Serial.print(" ");
+      Serial.print(payload_r.hop3);
+      Serial.print(" ");
+      Serial.print(payload_r.hop4);
+      Serial.print(" ");
+      Serial.print(payload_r.hop5);
+      Serial.print(" ");
+      Serial.print(payload_r.hop6);
+      Serial.print(" ");
+      Serial.print(payload_r.hop7);
+      Serial.print(" ");
+      Serial.print(payload_r.action.action1);
+      Serial.print(" ");
+      Serial.print(payload_r.action.action2);
+      Serial.print(" ");
+      Serial.print(payload_r.action.action3);
+      Serial.print(" ");
+      Serial.print(payload_r.action.action4);
+      Serial.print("(+");
+      Serial.print(millis()-last_time_message);
+      last_time_message = millis();
+      Serial.println(")");
 		}
    else
    {
@@ -267,7 +290,7 @@ Serial.print(theRouting[theCurrentMessage].action.action4);
 	  radio.write( &theRouting[theCurrentMessage], sizeof(payload_t) );              // Send the final one back.
 	  Serial.println(" OK");
 
-   if (theCurrentMessage == 1) //Máximo número de mensajes en la lista.
+   if (theCurrentMessage == theMaxMessages) //Máximo número de mensajes en la lista.
    {
     theCurrentMessage = 0;
    }
