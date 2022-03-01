@@ -70,5 +70,23 @@ TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
 TX ...TX payload:100 8 5 0 0 0 0 0 0 2 0 0 0 OK
 TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
 
+****************************
+BoxDomotic Master Node 1.0.2
+****************************
+Radio ID 8
+Relay's not configured
+Temperature PIN not configured
+PIR not configured
+LUX not configured
+Master Rx:0
+TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 5 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 5 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 5 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 5 0 0 0 0 0 2 0 0 0 OK
+TX ...TX payload:100 8 6 0 0 0 0 0 0 2 0 0 0 OK
 
 
