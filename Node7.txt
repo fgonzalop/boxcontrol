@@ -71,7 +71,7 @@ LUX not configured
 RX payload:3 6 0 19 68 0
 
 ****************************
-BoxDomotic Master Node 1.0.0
+BoxDomotic Master Node 1.0.1
 ****************************
 Radio ID 7
 Relay's not configured
@@ -79,25 +79,15 @@ Temperature PIN not configured
 PIR not configured
 LUX not configured
 Master Rx:1
-RX payload:100 0 2 0 0 0
-RX payload:100 0 2 0 0 0
-RX payload:101 6 0 19 62 0
-RX payload:100 0 2 0 0 0
-RX payload:100 0 2 0 0 0
-RX payload:101 6 0 19 62 0
-RX payload:100 0 2 0 0 0
-RX payload:100 0 2 0 0 0
-RX payload:100 0 2 0 0 0
-RX payload:101 6 0 19 62 0
-RX payload:100 0 2 0 0 0
-RX payload:101 6 0 19 62 0
-RX payload:100 0 2 0 0 0
-RX payload:100 0 2 0 0 0
-RX payload:100 0 2 0 0 0
-RX payload:101 6 0 19 62 0
-RX payload:100 0 2 0 0 0
-RX payload:101 6 0 19 68 0
-RX payload:100 0 2 0 0 0
+RX payload:100 8 5 0 0 0 0 0 0 2 0 0 0
+RX payload:101 6 8 0 0 0 0 0 0 0 19 75 0
+RX payload:100 8 6 0 0 0 0 0 0 2 0 0 0
+RX payload:101 6 8 0 0 0 0 0 0 0 19 75 0
+RX payload:100 8 5 0 0 0 0 0 0 2 0 0 0
+RX payload:100 8 6 0 0 0 0 0 0 2 0 0 0
+RX payload:101 6 8 0 0 0 0 0 0 0 19 75 0
+RX payload:100 8 6 0 0 0 0 0 0 2 0 0 0
+RX payload:100 8 5 0 0 0 0 0 0 2 0 0 0
 
 
 

@@ -37,21 +37,9 @@ int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
 void setup() {
   int aIndex =0;
 
-  theRouting[aIndex].messageId = 100;
-  theRouting[aIndex].hop1      = 6;
-  theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
-  theRouting[aIndex].hop2    = 0;
-  theRouting[aIndex].hop3    = 0;
-  theRouting[aIndex].hop4    = 0;
-  theRouting[aIndex].hop5    = 0;
-  theRouting[aIndex].hop6    = 0;
-  theRouting[aIndex].hop7    = 0;
-
   Serial.begin(115200);
   Serial.println(F("****************************"));
-  Serial.println(F("BoxDomotic Master Node 1.0.0"));
+  Serial.println(F("BoxDomotic Master Node 1.0.1"));
   Serial.println(F("****************************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -72,9 +60,6 @@ void setup() {
   radio.openWritingPipe(addresses[1]);
   radio.openReadingPipe(1,addresses[0]);
     
-  // Start the radio listening for data
-  radio.startListening();
-
   isWaitingRouting = 0;
 
   theRelayIndex = EEPROM.read(RELAY_INDEX);
@@ -163,9 +148,23 @@ Serial.println(" OK");
   else
   {
     RxWaiting = true;
+    radio.startListening();
   }
   Serial.print("Master Rx:");
   Serial.println(RxWaiting);
+
+  aIndex = 0;
+  theRouting[aIndex].messageId = 100;
+  theRouting[aIndex].hop1      = 6;
+  theRouting[aIndex].origen    = theRadioNumber;
+  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
+  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].hop2    = 0;
+  theRouting[aIndex].hop3    = 0;
+  theRouting[aIndex].hop4    = 0;
+  theRouting[aIndex].hop5    = 0;
+  theRouting[aIndex].hop6    = 0;
+  theRouting[aIndex].hop7    = 0;
 }
 
 /*
@@ -195,6 +194,20 @@ Serial.print(payload_r.messageId);
 Serial.print(" ");
 Serial.print(payload_r.origen);
 Serial.print(" ");
+Serial.print(payload_r.hop1);
+Serial.print(" ");
+Serial.print(payload_r.hop2);
+Serial.print(" ");
+Serial.print(payload_r.hop3);
+Serial.print(" ");
+Serial.print(payload_r.hop4);
+Serial.print(" ");
+Serial.print(payload_r.hop5);
+Serial.print(" ");
+Serial.print(payload_r.hop6);
+Serial.print(" ");
+Serial.print(payload_r.hop7);
+Serial.print(" ");
 Serial.print(payload_r.action.action1);
 Serial.print(" ");
 Serial.print(payload_r.action.action2);
@@ -212,22 +225,42 @@ Serial.println(payload_r.action.action4);
 	else
 	{
     Serial.print("TX ...");
-//    if (theRouting[0].hop1 == 5)
-//    {
-//      theRouting[0].hop1 = 6;
-//    }
-//    else
-//    {
-//      theRouting[0].hop1 = 5;
-//    }
-
-	  radio.stopListening();                                        // First, stop listening so we can talk   
-	  delay(10);
+    if (theRouting[0].hop1 == 5)
+    {
+      theRouting[0].hop1 = 6;
+    }
+    else
+    {
+      theRouting[0].hop1 = 5;
+    }
+    Serial.print("TX payload:");
+Serial.print(theRouting[0].messageId);
+Serial.print(" ");
+Serial.print(theRouting[0].origen);
+Serial.print(" ");
+Serial.print(theRouting[0].hop1);
+Serial.print(" ");
+Serial.print(theRouting[0].hop2);
+Serial.print(" ");
+Serial.print(theRouting[0].hop3);
+Serial.print(" ");
+Serial.print(theRouting[0].hop4);
+Serial.print(" ");
+Serial.print(theRouting[0].hop5);
+Serial.print(" ");
+Serial.print(theRouting[0].hop6);
+Serial.print(" ");
+Serial.print(theRouting[0].hop7);
+Serial.print(" ");
+Serial.print(theRouting[0].action.action1);
+Serial.print(" ");
+Serial.print(theRouting[0].action.action2);
+Serial.print(" ");
+Serial.print(theRouting[0].action.action3);
+Serial.print(" ");
+Serial.print(theRouting[0].action.action4);
 	  radio.write( &theRouting[0], sizeof(payload_t) );              // Send the final one back.
-	  delay(10);      
-	  radio.startListening();
-    delay(10);  
-	  Serial.println("OK");
+	  Serial.println(" OK");
 
    delay (1000);
 	}
