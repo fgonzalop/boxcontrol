@@ -102,7 +102,20 @@ void setup() {
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
 
-  theMaxMessages = 2;
+  aIndex = 3;
+  theRouting[aIndex].messageId = 106;
+  theRouting[aIndex].hop1      = 6;
+  theRouting[aIndex].origen    = theRadioNumber;
+  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
+  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].hop2    = 5;
+  theRouting[aIndex].hop3    = 4;
+  theRouting[aIndex].hop4    = 3;
+  theRouting[aIndex].hop5    = 0;
+  theRouting[aIndex].hop6    = 0;
+  theRouting[aIndex].hop7    = 0;
+  
+  theMaxMessages = 3;
   
   last_time_message = millis();
 }
