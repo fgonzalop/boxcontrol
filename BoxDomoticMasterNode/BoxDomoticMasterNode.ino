@@ -11,12 +11,7 @@
 RF24 radio(9,10);
 
 int theRadioNumber;
-int isRouter = 1;
-int theRelayIndex;
-int theTemperaturePin;
-int thePIRPin;
 volatile unsigned long thePIR_START = 0;
-int theLuxPin;
 bool RxWaiting = true;
 int theCurrentMessage = 0;
 int theMaxMessages;
@@ -28,21 +23,13 @@ payload_t payload;
 payload_t payload_r;
 payload_t payload_original;
 payload_t theRouting[10];
-int       isWaitingRouting;
-unsigned long theTimeForTimeout;
-unsigned long theTimeout = TIMEOUT;
-int aCounter = 0;
-answer_t aAnswer;
-
-float theTemperature = 20.0;
-int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
 
 void setup() {
   int aIndex =0;
 
   Serial.begin(115200);
   Serial.println(F("****************************"));
-  Serial.println(F("BoxDomotic Master Node 1.0.3"));
+  Serial.println(F("BoxDomotic Master Node 1.0.4"));
   Serial.println(F("****************************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -62,85 +49,6 @@ void setup() {
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
   radio.openReadingPipe(1,addresses[0]);
-    
-  isWaitingRouting = 0;
-
-  theRelayIndex = EEPROM.read(RELAY_INDEX);
-  if (theRelayIndex == 0xFF)
-  {
-Serial.println("Relay's not configured");
-     for (aIndex=0; aIndex<MAX_RELAY; aIndex++)
-     {
-        theRelay[aIndex]= 0;
-     }
-      
-  }else
-  {
-Serial.print("Relay index ");
-Serial.println(theRelayIndex);
-     for (aIndex=0; aIndex<theRelayIndex; aIndex++)
-     {
-        theRelay[aIndex]= EEPROM.read(RELAY_INDEX+aIndex+1);
-        pinMode(theRelay[aIndex], OUTPUT);
-        digitalWrite(theRelay[aIndex], LOW);
-     }   
-     
-     delay (1500);
-     for (aIndex=0; aIndex<theRelayIndex; aIndex++)
-     {
-        digitalWrite(theRelay[aIndex], HIGH);
-     }
-
-   }
-
-   theTemperaturePin = EEPROM.read(TEMPERATURE_PIN);
-   if (theTemperaturePin == 0xFF)
-   {
-Serial.println("Temperature PIN not configured");      
-   }
-   else
-   {
-Serial.print("Configuring Temperature pin ");
-Serial.print(theTemperaturePin); 
-Serial.print(" ");  
-Serial.println(" OK");
-  }
-  
-  thePIRPin = EEPROM.read(PIR_PIN);
-
-  if (thePIRPin == 0xFF)
-  {
-    Serial.println("PIR not configured");  
-  }
-  else
-  {
-     Serial.print("Configuring PIR pin ");
-     Serial.print(thePIRPin); 
-     pinMode(thePIRPin, INPUT_PULLUP);
-     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, RISING);
-     
-     Serial.println(" OK");
-  }
-  
-  theLuxPin = EEPROM.read(LUX_PIN);
-
-  if (theLuxPin == 0xFF)
-  {
-    Serial.println("LUX not configured");  
-  }
-  else
-  {     
-     Serial.print("Configuring LUX pin ");
-     Serial.print(theLuxPin); 
-     Serial.print(" ");
-     theLuxPin = A7; //TBD
-     int sensorValue = analogRead(theLuxPin);
-     // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-     float voltage = sensorValue * (5.0 / 1023.0);
-     // print out the value you read:
-     Serial.print(voltage);
-     Serial.println(" OK");
-  }
 
   int theMasterTxPin = EEPROM.read(MASTER_TX_PIN);
   if (theMasterTxPin == 1)
