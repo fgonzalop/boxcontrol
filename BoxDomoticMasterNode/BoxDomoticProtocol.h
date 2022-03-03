@@ -43,6 +43,13 @@ struct payload_t {
   byte hop5;
   byte hop6;
   byte hop7;
+  byte hop_reply1;
+  byte hop_reply2;
+  byte hop_reply3;
+  byte hop_reply4;
+  byte hop_reply5;
+  byte hop_reply6;
+  byte hop_reply7;
 };
 
 int hops(payload_t aPayload)

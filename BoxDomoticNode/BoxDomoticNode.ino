@@ -11,7 +11,6 @@
 RF24 radio(9,10);
 
 int theRadioNumber;
-int isRouter = 1;
 int theRelayIndex;
 int theTemperaturePin;
 int thePIRPin;
@@ -32,13 +31,14 @@ answer_t aAnswer;
 
 float theTemperature = 20.0;
 int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
+void Temperature();
 
 void setup() {
   int aIndex;
   
   Serial.begin(115200);
   Serial.println(F("*********************"));
-  Serial.println(F("BoxDomotic Node 1.0.f"));
+  Serial.println(F("BoxDomotic Node 2.0.1"));
   Serial.println(F("*********************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -151,132 +151,6 @@ void PIR_ISR()
    thePIR_START = millis();
 }
 
-/*
- * Procedure loop
- *    Se lee la parte de RF los datos.
- *    Se procesa y se manda ANSWER y PERFORM (si es diferido)
- */
-void loop() 
-{
-   if (isWaitingRouting)
-   {
-Serial.print(".");
-      if ((theTimeForTimeout + theTimeout) < millis())
-      {
-Serial.println("Timeout");
-Serial.println(millis());
-Serial.println(theTimeForTimeout);  
-      isWaitingRouting = 0;    
-
-      theRouting.messageId = theRouting.messageId+1;
-      theRouting.hop1 = theRouting.origen;
-      theRouting.origen = theRadioNumber;
-      theRouting.action.action1 = TIMEOUT_ANSWER; //Timeout
-      theRouting.action.action2 = TIMEOUT_ANSWER; //Timeout
-      theRouting.hop2    = 0;
-      theRouting.hop3    = 0;
-      theRouting.hop4    = 0;
-      theRouting.hop5    = 0;
-      theRouting.hop6    = 0;
-      theRouting.hop7    = 0;
-      
-      radio.stopListening();                                        // First, stop listening so we can talk   
-      delay (10);
-      radio.write( &theRouting, sizeof(payload_t) );              // Send the final one back.
-      delay (10);      
-      radio.startListening();
-      }
-   }  
-     
-   if( radio.available())
-   {
-      payload_r.messageId=1; //Only to enter once
-      radio.read( &payload_r, sizeof(payload_t) ); 
-      
-      if (isWaitingRouting)
-      {            
-         //Wait answer ROUTING                  
-         if ((payload_r.hop1 == theRadioNumber ))
-         {
-Serial.println("Answer");
-Serial.println(millis());
-            isWaitingRouting = 0;
-            payload_r.hop7 = payload_r.hop6;
-            payload_r.hop6 = payload_r.hop5;
-            payload_r.hop5 = payload_r.hop4;
-            payload_r.hop4 = payload_r.hop3;
-            payload_r.hop3 = payload_r.hop2;
-            payload_r.hop2 = payload_r.origen;
-            payload_r.hop1 = theRouting.origen;            
-            payload_r.origen = theRadioNumber;
-
-            radio.stopListening();                                        // First, stop listening so we can talk   
-            delay (10);
-            radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-            delay (10);      
-            radio.startListening();
-         }
-
-   }else
-   {
-      if ((payload_r.hop1 == theRadioNumber) && ((payload_r.messageId % 2) == 0))
-      {    
-        if (payload_r.hop2 == 0)
-        {
-          // mensaje directo
-          radio.stopListening();                                        // First, stop listening so we can talk   
-          //delay (10);
-          payload_original = payload_r;
-          payload_r.messageId = payload_r.messageId+1;
-          payload_r.hop1 = payload_r.origen;
-          payload_r.origen = theRadioNumber;
-          payload_r.action = Answer(payload_r.action);
-          
-          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (10);      
-          radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-Serial.print("requesting..." );
-		  Perform(payload_original.action);   
-Serial.println(F("Sent response "));
-        }else
-        { 
-Serial.println("Routing msg");
-          if (isRouter == 1)
-          {
-            isWaitingRouting = 1;
-            theTimeout = (hops(payload_r)-1)*TIMEOUT;
-            theRouting = payload_r;
-            payload_r.origen = theRadioNumber;
-            payload_r.hop1 = payload_r.hop2;
-            payload_r.hop2 = payload_r.hop3;
-            payload_r.hop3 = payload_r.hop4;
-            payload_r.hop4 = payload_r.hop5;
-            payload_r.hop5 = payload_r.hop6;
-            payload_r.hop6 = payload_r.hop7;
-            payload_r.hop7 = 0;
-            theTimeForTimeout = millis();
-  
-            Serial.println("Routing");
-            Serial.println(theTimeForTimeout);
-            radio.stopListening();                                        // First, stop listening so we can talk   
-            delay (10);
-            radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-            //delay (10);      
-            radio.startListening();
-            //delay(10);
-            
-  Serial.println("Waiting..");
-             //
-          }
-        }
-      }
-    } 
-      //delay (10);
-   }
-   delay (10);
-   //Serial.print(thePIR);
-
-} // Loop
 
 /*
  * Procedure ANSWER
@@ -539,3 +413,74 @@ unsigned long AnswerLux(answer_t aAction)
      
     return (int)(voltage* 255.0/5.0);
 }
+
+/*
+ * Procedure loop
+ *    Se lee la parte de RF los datos.
+ *    Se procesa y se manda ANSWER y PERFORM (si es diferido)
+ */
+void loop() 
+{     
+   if( radio.available())
+   {
+      radio.read(&payload_r, sizeof(payload_t)); 
+
+      if (payload_r.hop1 == theRadioNumber)
+      {    
+        if (payload_r.hop2 == 0)  // mensaje directo
+        {
+          radio.stopListening();                                        // First, stop listening so we can talk   
+          delay (10);
+          payload_original = payload_r;
+          payload_r.messageId = payload_r.messageId+1;
+          
+          payload_r.origen = theRadioNumber;
+          payload_r.action = Answer(payload_r.action);
+          payload_r.hop1 = payload_r.hop_reply1;
+          payload_r.hop2 = payload_r.hop_reply2;
+          payload_r.hop3 = payload_r.hop_reply3;
+          payload_r.hop4 = payload_r.hop_reply4;
+          payload_r.hop5 = payload_r.hop_reply5;
+          payload_r.hop6 = payload_r.hop_reply6;
+          payload_r.hop7 = payload_r.hop_reply7;
+          
+          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
+          delay (10);      
+          radio.startListening();                                       // Now, resume listening so we catch the next packets.  
+Serial.print("requesting..." );
+      Perform(payload_original.action);   
+Serial.println(F("Sent response "));
+        }
+		else
+        { 
+Serial.println("Routing msg");
+          payload_r.origen = theRadioNumber;
+          payload_r.hop1 = payload_r.hop2;
+          payload_r.hop2 = payload_r.hop3;
+          payload_r.hop3 = payload_r.hop4;
+          payload_r.hop4 = payload_r.hop5;
+          payload_r.hop5 = payload_r.hop6;
+          payload_r.hop6 = payload_r.hop7;
+          payload_r.hop7 = 0;
+          payload_r.hop_reply7 = payload_r.hop_reply6;
+          payload_r.hop_reply6 = payload_r.hop_reply5;
+          payload_r.hop_reply5 = payload_r.hop_reply4;
+          payload_r.hop_reply4 = payload_r.hop_reply3;
+          payload_r.hop_reply3 = payload_r.hop_reply2;
+          payload_r.hop_reply2 = payload_r.hop_reply1;
+          payload_r.hop_reply1 = theRadioNumber;
+
+Serial.println("Routing");
+          radio.stopListening();                                        // First, stop listening so we can talk   
+          delay (10);
+          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
+          delay (10);      
+          radio.startListening();
+          //delay(10);
+        }
+      }
+    } 
+   delay (10);
+   //Serial.print(thePIR);
+
+} // Loop

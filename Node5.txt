@@ -32,4 +32,12 @@ Configuring Temperature pin 4 16.87 OK
 PIR not configured
 LUX not configured
 
+21:25:50.542 -> *********************
+21:25:50.542 -> BoxDomotic Node 2.0.1
+21:25:50.542 -> *********************
+21:25:50.542 -> Radio ID 5
+21:25:50.542 -> Relay's not configured
+21:25:50.542 -> Configuring Temperature pin 4 24.06 OK
+21:25:51.557 -> PIR not configured
+21:25:51.557 -> LUX not configured
 

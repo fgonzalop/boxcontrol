@@ -29,7 +29,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("****************************"));
-  Serial.println(F("BoxDomotic Master Node 1.0.4"));
+  Serial.println(F("BoxDomotic Master Node 2.0.0"));
   Serial.println(F("****************************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -75,6 +75,13 @@ void setup() {
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
+  theRouting[aIndex].hop_reply1 = theRadioNumber;
+  theRouting[aIndex].hop_reply2 = 0;
+  theRouting[aIndex].hop_reply3 = 0;
+  theRouting[aIndex].hop_reply4 = 0;
+  theRouting[aIndex].hop_reply5 = 0;
+  theRouting[aIndex].hop_reply6 = 0;
+  theRouting[aIndex].hop_reply7 = 0;
 
   aIndex = 1;
   theRouting[aIndex].messageId = 102;
@@ -88,6 +95,13 @@ void setup() {
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
+  theRouting[aIndex].hop_reply1 = theRadioNumber;
+  theRouting[aIndex].hop_reply2 = 0;
+  theRouting[aIndex].hop_reply3 = 0;
+  theRouting[aIndex].hop_reply4 = 0;
+  theRouting[aIndex].hop_reply5 = 0;
+  theRouting[aIndex].hop_reply6 = 0;
+  theRouting[aIndex].hop_reply7 = 0;
 
   aIndex = 2;
   theRouting[aIndex].messageId = 104;
@@ -101,6 +115,13 @@ void setup() {
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
+  theRouting[aIndex].hop_reply1 = theRadioNumber;
+  theRouting[aIndex].hop_reply2 = 0;
+  theRouting[aIndex].hop_reply3 = 0;
+  theRouting[aIndex].hop_reply4 = 0;
+  theRouting[aIndex].hop_reply5 = 0;
+  theRouting[aIndex].hop_reply6 = 0;
+  theRouting[aIndex].hop_reply7 = 0;
 
   aIndex = 3;
   theRouting[aIndex].messageId = 106;
@@ -110,12 +131,19 @@ void setup() {
   theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
   theRouting[aIndex].hop2    = 5;
   theRouting[aIndex].hop3    = 4;
-  theRouting[aIndex].hop4    = 3;
+  theRouting[aIndex].hop4    = 9;
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
+  theRouting[aIndex].hop_reply1 = theRadioNumber;
+  theRouting[aIndex].hop_reply2 = 0;
+  theRouting[aIndex].hop_reply3 = 0;
+  theRouting[aIndex].hop_reply4 = 0;
+  theRouting[aIndex].hop_reply5 = 0;
+  theRouting[aIndex].hop_reply6 = 0;
+  theRouting[aIndex].hop_reply7 = 0;
   
-  theMaxMessages = 3;
+  theMaxMessages = 1;
   
   last_time_message = millis();
 }
@@ -171,7 +199,21 @@ void loop()
       Serial.print("(+");
       Serial.print(millis()-last_time_message);
       last_time_message = millis();
-      Serial.println(")");
+      Serial.print(")");
+      Serial.print(" ");
+      Serial.print(payload_r.hop_reply1);
+      Serial.print(" ");
+      Serial.print(payload_r.hop_reply2);
+      Serial.print(" ");
+      Serial.print(payload_r.hop_reply3);
+      Serial.print(" ");
+      Serial.print(payload_r.hop_reply4);
+      Serial.print(" ");
+      Serial.print(payload_r.hop_reply5);
+      Serial.print(" ");
+      Serial.print(payload_r.hop_reply6);
+      Serial.print(" ");
+      Serial.println(payload_r.hop_reply7);
 		}
    else
    {
@@ -208,6 +250,20 @@ Serial.print(" ");
 Serial.print(theRouting[theCurrentMessage].action.action3);
 Serial.print(" ");
 Serial.print(theRouting[theCurrentMessage].action.action4);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply1);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply2);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply3);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply4);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply5);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply6);
+Serial.print(" ");
+Serial.print(theRouting[theCurrentMessage].hop_reply7);
 	  radio.write( &theRouting[theCurrentMessage], sizeof(payload_t) );              // Send the final one back.
 	  Serial.println(" OK");
 
@@ -219,7 +275,7 @@ Serial.print(theRouting[theCurrentMessage].action.action4);
    {
     theCurrentMessage++;
    }
-   delay (2000);
+   delay (3000);
 	}
 
 } // Loop
