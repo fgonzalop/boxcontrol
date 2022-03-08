@@ -396,7 +396,7 @@ void Temperature()
   celsius = (float)raw / 16.0;
   
   theTemperature = celsius;
-  Serial.print(celsius);
+  Serial.println(celsius);
 }
 
 /*

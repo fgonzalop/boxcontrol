@@ -41,6 +41,24 @@ LUX not configured
 20:32:56.227 -> PIR not configured
 20:32:56.227 -> LUX not configured
 
-
+22:57:23.313 -> *********************
+22:57:23.313 -> BoxDomotic Node 2.0.2
+22:57:23.313 -> *********************
+22:57:23.313 -> Radio ID 6
+22:57:23.357 -> Relay's not configured
+22:57:23.357 -> Configuring Temperature pin 4 20.31
+22:57:24.380 ->  OK
+22:57:24.380 -> PIR not configured
+22:57:24.380 -> LUX not configured
+22:57:28.653 -> Temperature (0)20
+22:57:28.653 -> 31
+22:57:28.653 -> requesting...
+22:57:28.653 ->  2 20.31
+22:57:29.676 -> Sent response 
+22:57:40.693 -> Temperature (0)20
+22:57:40.693 -> 31
+22:57:40.739 -> requesting...
+22:57:40.739 ->  2 20.25
+22:57:41.765 -> Sent response 
 
 
