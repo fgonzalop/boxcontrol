@@ -29,7 +29,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("****************************"));
-  Serial.println(F("BoxDomotic Master Node 2.0.0"));
+  Serial.println(F("BoxDomotic Master Node 2.0.1"));
   Serial.println(F("****************************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -142,8 +142,28 @@ void setup() {
   theRouting[aIndex].hop_reply5 = 0;
   theRouting[aIndex].hop_reply6 = 0;
   theRouting[aIndex].hop_reply7 = 0;
+
+  aIndex = 4;
+  theRouting[aIndex].messageId = 108;
+  theRouting[aIndex].hop1      = 5;
+  theRouting[aIndex].origen    = theRadioNumber;
+  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
+  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].hop2    = 4;
+  theRouting[aIndex].hop3    = 3;
+  theRouting[aIndex].hop4    = 0;
+  theRouting[aIndex].hop5    = 0;
+  theRouting[aIndex].hop6    = 0;
+  theRouting[aIndex].hop7    = 0;
+  theRouting[aIndex].hop_reply1 = theRadioNumber;
+  theRouting[aIndex].hop_reply2 = 0;
+  theRouting[aIndex].hop_reply3 = 0;
+  theRouting[aIndex].hop_reply4 = 0;
+  theRouting[aIndex].hop_reply5 = 0;
+  theRouting[aIndex].hop_reply6 = 0;
+  theRouting[aIndex].hop_reply7 = 0;
   
-  theMaxMessages = 3;
+  theMaxMessages = 4;
   
   last_time_message = millis();
 }
