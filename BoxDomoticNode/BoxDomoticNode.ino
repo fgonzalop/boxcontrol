@@ -38,7 +38,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println(F("*********************"));
-  Serial.println(F("BoxDomotic Node 2.0.1"));
+  Serial.println(F("BoxDomotic Node 2.0.2"));
   Serial.println(F("*********************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -53,7 +53,7 @@ void setup() {
 
   // Set the PA Level low to prevent power supply related issues since this is a
  // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
-  radio.setPALevel(RF24_PA_LOW);
+  radio.setPALevel(RF24_PA_HIGH);
   
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
@@ -445,9 +445,9 @@ void loop()
           payload_r.hop7 = payload_r.hop_reply7;
           
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (10);      
+          delay (5);      
           radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-Serial.print("requesting..." );
+Serial.println("requesting..." );
       Perform(payload_original.action);   
 Serial.println(F("Sent response "));
         }
@@ -474,13 +474,13 @@ Serial.println("Routing");
           radio.stopListening();                                        // First, stop listening so we can talk   
           delay (10);
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (10);      
+          delay (5);      
           radio.startListening();
           //delay(10);
         }
       }
     } 
-   delay (10);
+   delay (1);
    //Serial.print(thePIR);
 
 } // Loop
