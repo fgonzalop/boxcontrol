@@ -44,7 +44,7 @@ void setup() {
 
   // Set the PA Level low to prevent power supply related issues since this is a
  // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
-  radio.setPALevel(RF24_PA_HIGH);
+  radio.setPALevel(RF24_PA_MAX);
   
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
@@ -150,8 +150,8 @@ void setup() {
   theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
   theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
   theRouting[aIndex].hop2    = 4;
-  theRouting[aIndex].hop3    = 3;
-  theRouting[aIndex].hop4    = 0;
+  theRouting[aIndex].hop3    = 9;
+  theRouting[aIndex].hop4    = 3;
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
@@ -162,8 +162,27 @@ void setup() {
   theRouting[aIndex].hop_reply5 = 0;
   theRouting[aIndex].hop_reply6 = 0;
   theRouting[aIndex].hop_reply7 = 0;
-  
-  theMaxMessages = 4;
+
+  aIndex = 5;
+  theRouting[aIndex].messageId = 110;
+  theRouting[aIndex].hop1      = 6;
+  theRouting[aIndex].origen    = theRadioNumber;
+  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
+  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].hop2    = 5;
+  theRouting[aIndex].hop3    = 4;
+  theRouting[aIndex].hop4    = 2;
+  theRouting[aIndex].hop5    = 0;
+  theRouting[aIndex].hop6    = 0;
+  theRouting[aIndex].hop7    = 0;
+  theRouting[aIndex].hop_reply1 = theRadioNumber;
+  theRouting[aIndex].hop_reply2 = 0;
+  theRouting[aIndex].hop_reply3 = 0;
+  theRouting[aIndex].hop_reply4 = 0;
+  theRouting[aIndex].hop_reply5 = 0;
+  theRouting[aIndex].hop_reply6 = 0;
+  theRouting[aIndex].hop_reply7 = 0;
+  theMaxMessages = 5; 
   
   last_time_message = millis();
 }

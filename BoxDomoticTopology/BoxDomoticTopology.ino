@@ -138,8 +138,12 @@ void setup() {
     delay (500); 
   } 
   /* Nivel 2 */
-  for (int route = 6; route <10; route++)
+  for (int route = 1; route <10; route++)
   {
+    if (route == theRadioNumber)
+    {
+       route++;  
+    }
     for (aIndex = 1; aIndex <10; aIndex++)
     {
       if ((aIndex == theRadioNumber) || (aIndex == route))
