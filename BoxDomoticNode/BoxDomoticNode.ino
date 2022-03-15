@@ -16,13 +16,14 @@ int theTemperaturePin;
 int thePIRPin;
 volatile unsigned long thePIR_START = 0;
 int theLuxPin;
+int theCurrentMessage = 0;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
 payload_t payload;
 payload_t payload_r;
 payload_t payload_original;
-payload_t theRouting;
+payload_t theRouting[10];
 int       isWaitingRouting;
 unsigned long theTimeForTimeout;
 unsigned long theTimeout = TIMEOUT;
@@ -38,7 +39,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println(F("*********************"));
-  Serial.println(F("BoxDomotic Node 2.0.2"));
+  Serial.println(F("BoxDomotic Node 2.0.3"));
   Serial.println(F("*********************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -163,6 +164,11 @@ answer_t Answer(answer_t aAction)
   float aTemperature;
   switch (aAction.action1)
   {
+    case REQUEST_NEIGHBOUR:
+      aResult.action1 = SUCCESS_ANSWER;   
+      aResult.action2 = 0xFF; 
+      aResult.action3 = AnswerNeighbour(aAction);
+      break;
     case REQUEST_TEMPERATURE_ACTION:
        aResult.action1 = SUCCESS_ANSWER;
        aTemperature = AnswerTemperature(aAction);
@@ -171,7 +177,8 @@ answer_t Answer(answer_t aAction)
 Serial.print("Temperature (");
 Serial.print(aAction.action2);
 Serial.print(")");
-Serial.println(aResult.action2);
+Serial.print(aResult.action2);
+Serial.print(" ");
 Serial.println(aResult.action3);
        break;
     case REQUEST_LUX_ACTION:
@@ -277,7 +284,12 @@ Serial.println("RELAY STATUS... ");
       Serial.println(aResult.action3);
       
       break;
-      
+
+    case REQUEST_NEIGHBOUR:
+       aResult.action1 = SUCCESS_ANSWER;
+       aResult.action2 = AnswerNeighbour(aAction);
+       Serial.println(aResult.action2);
+       break;
     default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
@@ -310,6 +322,99 @@ Serial.print(" ");
     default:
        break;
   }
+}
+
+/*
+ * Procedure AnswerNeighbour
+ */
+int AnswerNeighbour(answer_t aAction)
+{
+  int aIndex =0;
+  for (aIndex = 1; aIndex <10; aIndex++)
+  {
+    if (aIndex == theRadioNumber)
+    { 
+      aIndex++;
+    }
+    
+    theRouting[theCurrentMessage].messageId = 200;
+    theRouting[theCurrentMessage].hop1      = aIndex;
+    theRouting[theCurrentMessage].origen    = theRadioNumber;
+    theRouting[theCurrentMessage].action.action1 = REQUEST_PIR_ACTION; 
+    theRouting[theCurrentMessage].action.action2 = SUCCESS_ANSWER; 
+    theRouting[theCurrentMessage].hop2    = 0;
+    theRouting[theCurrentMessage].hop3    = 0;
+    theRouting[theCurrentMessage].hop4    = 0;
+    theRouting[theCurrentMessage].hop5    = 0;
+    theRouting[theCurrentMessage].hop6    = 0;
+    theRouting[theCurrentMessage].hop7    = 0;
+    theRouting[theCurrentMessage].hop_reply1 = theRadioNumber;
+    theRouting[theCurrentMessage].hop_reply2 = 0;
+    theRouting[theCurrentMessage].hop_reply3 = 0;
+    theRouting[theCurrentMessage].hop_reply4 = 0;
+    theRouting[theCurrentMessage].hop_reply5 = 0;
+    theRouting[theCurrentMessage].hop_reply6 = 0;
+    theRouting[theCurrentMessage].hop_reply7 = 0;
+  
+    Serial.print("TX payload:");
+    Serial.print(theRouting[theCurrentMessage].messageId);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].origen);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop1);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop2);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop3);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop4);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop5);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop6);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop7);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].action.action1);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].action.action2);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].action.action3);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].action.action4);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply1);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply2);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply3);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply4);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply5);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply6);
+    Serial.print(" ");
+    Serial.print(theRouting[theCurrentMessage].hop_reply7);
+
+    radio.stopListening();
+    delay(10);
+    radio.write( &theRouting[theCurrentMessage], sizeof(payload_t) );              // Send the final one back.
+    delay(5);
+    radio.startListening();
+    delay(20);
+    if( radio.available())
+    {
+      radio.read(&payload_r, sizeof(payload_t)); 
+
+      if (payload_r.hop1 == theRadioNumber)
+      {    
+        if (payload_r.hop2 == 0)  // mensaje directo
+        {
+        }
+      }
+   } 
+  } 
 }
 
 /*
@@ -447,7 +552,7 @@ void loop()
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
           delay (5);      
           radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-Serial.println("requesting..." );
+Serial.print("requesting..." );
       Perform(payload_original.action);   
 Serial.println(F("Sent response "));
         }
@@ -469,8 +574,7 @@ Serial.println("Routing msg");
           payload_r.hop_reply3 = payload_r.hop_reply2;
           payload_r.hop_reply2 = payload_r.hop_reply1;
           payload_r.hop_reply1 = theRadioNumber;
-
-Serial.println("Routing");
+          
           radio.stopListening();                                        // First, stop listening so we can talk   
           delay (10);
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.

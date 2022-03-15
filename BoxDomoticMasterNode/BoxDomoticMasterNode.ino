@@ -67,7 +67,7 @@ void setup() {
   theRouting[aIndex].messageId = 100;
   theRouting[aIndex].hop1      = 6;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
+  theRouting[aIndex].action.action1 = REQUEST_NEIGHBOUR; 
   theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
   theRouting[aIndex].hop2    = 0;
   theRouting[aIndex].hop3    = 0;

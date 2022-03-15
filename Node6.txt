@@ -61,4 +61,18 @@ LUX not configured
 22:57:40.739 ->  2 20.25
 22:57:41.765 -> Sent response 
 
+21:34:48.642 -> *********************
+21:34:48.642 -> BoxDomotic Node 2.0.3
+21:34:48.642 -> *********************
+21:34:48.642 -> Radio ID 6
+21:34:48.642 -> Relay's not configured
+21:34:48.642 -> Configuring Temperature pin 4 22.19
+21:34:49.672 ->  OK
+21:34:49.672 -> PIR not configured
+21:34:49.672 -> LUX not configured
+21:34:58.058 -> Routing msg
+21:35:01.054 -> TX payload:200 6 1 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 2 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 3 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 4 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 5 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 7 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 8 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 9 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0requesting... 16 Sent response 
+21:35:16.087 -> Routing msg
+21:35:19.130 -> TX payload:200 6 1 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 2 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 3 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 4 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 5 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 7 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 8 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0TX payload:200 6 9 0 0 0 0 0 0 4 0 0 0 6 0 0 0 0 0 0requesting... 16 Sent response 
+
 
