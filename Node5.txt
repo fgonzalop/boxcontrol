@@ -71,3 +71,16 @@ LUX not configured
 22:54:30.970 -> requesting...
 22:54:30.970 ->  2 20.12
 22:54:32.036 -> Sent response 
+
+23:40:16.749 -> *********************
+23:40:16.749 -> BoxDomotic Node 2.0.3
+23:40:16.749 -> *********************
+23:40:16.749 -> Radio ID 5
+23:40:16.749 -> Relay's not configured
+23:40:16.749 -> Configuring Temperature pin 4 20.00
+23:40:17.786 ->  OK
+23:40:17.786 -> PIR not configured
+23:40:17.786 -> LUX not configured
+23:40:18.687 -> Routing msg
+23:40:18.734 -> Routing msg
+23:40:21.699 -> Routing msg

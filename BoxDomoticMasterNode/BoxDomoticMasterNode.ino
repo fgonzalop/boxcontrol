@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include "RF24.h"
 #include "BoxDomoticProtocol.h"
+#include "printf.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
 RF24 radio(9,10);
@@ -29,7 +30,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("****************************"));
-  Serial.println(F("BoxDomotic Master Node 2.0.1"));
+  Serial.println(F("BoxDomotic Master Node 2.0.2"));
   Serial.println(F("****************************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -62,6 +63,8 @@ void setup() {
   }
   Serial.print("Master Rx:");
   Serial.println(RxWaiting);
+  printf_begin();
+  radio.printDetails();
 
   aIndex = 0;
   theRouting[aIndex].messageId = 100;
@@ -183,7 +186,7 @@ void setup() {
   theRouting[aIndex].hop_reply6 = 0;
   theRouting[aIndex].hop_reply7 = 0;
   theMaxMessages = 5; 
-  
+
   last_time_message = millis();
 }
 

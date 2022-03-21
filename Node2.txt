@@ -7,3 +7,13 @@
 09:15:29.102 ->  OK
 09:15:29.102 -> PIR not configured
 09:15:29.102 -> LUX not configured
+
+00:01:02.606 -> *********************
+00:01:02.606 -> BoxDomotic Node 2.0.3
+00:01:02.606 -> *********************
+00:01:02.606 -> Radio ID 2
+00:01:02.606 -> Relay index 9
+00:01:04.109 -> Configuring Temperature pin 4 22.31
+00:01:05.144 ->  OK
+00:01:05.144 -> PIR not configured
+00:01:05.144 -> LUX not configured

@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include "RF24.h"
 #include "BoxDomoticProtocol.h"
+#include "printf.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
 RF24 radio(9,10);
@@ -62,7 +63,9 @@ void setup() {
     
   // Start the radio listening for data
   radio.startListening();
-
+  printf_begin();
+  radio.printDetails();
+  
   isWaitingRouting = 0;
 
   theRelayIndex = EEPROM.read(RELAY_INDEX);
@@ -164,6 +167,11 @@ answer_t Answer(answer_t aAction)
   float aTemperature;
   switch (aAction.action1)
   {
+    case SET_ID_ACTION:
+      aResult.action1 = SUCCESS_ANSWER;   
+      aResult.action2 = theRadioNumber; 
+      aResult.action3 = 0;
+      break;
     case REQUEST_NEIGHBOUR:
       aResult.action1 = SUCCESS_ANSWER;   
       aResult.action2 = 0xFF; 
@@ -285,11 +293,6 @@ Serial.println("RELAY STATUS... ");
       
       break;
 
-    case REQUEST_NEIGHBOUR:
-       aResult.action1 = SUCCESS_ANSWER;
-       aResult.action2 = AnswerNeighbour(aAction);
-       Serial.println(aResult.action2);
-       break;
     default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
@@ -329,7 +332,9 @@ Serial.print(" ");
  */
 int AnswerNeighbour(answer_t aAction)
 {
-  int aIndex =0;
+  int result = 0;
+  int peso   = 1;
+  int aIndex = 0;
   for (aIndex = 1; aIndex <10; aIndex++)
   {
     if (aIndex == theRadioNumber)
@@ -340,7 +345,7 @@ int AnswerNeighbour(answer_t aAction)
     theRouting[theCurrentMessage].messageId = 200;
     theRouting[theCurrentMessage].hop1      = aIndex;
     theRouting[theCurrentMessage].origen    = theRadioNumber;
-    theRouting[theCurrentMessage].action.action1 = REQUEST_PIR_ACTION; 
+    theRouting[theCurrentMessage].action.action1 = SET_ID_ACTION; 
     theRouting[theCurrentMessage].action.action2 = SUCCESS_ANSWER; 
     theRouting[theCurrentMessage].hop2    = 0;
     theRouting[theCurrentMessage].hop3    = 0;
@@ -395,7 +400,7 @@ int AnswerNeighbour(answer_t aAction)
     Serial.print(" ");
     Serial.print(theRouting[theCurrentMessage].hop_reply6);
     Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply7);
+    Serial.println(theRouting[theCurrentMessage].hop_reply7);
 
     radio.stopListening();
     delay(10);
@@ -405,16 +410,21 @@ int AnswerNeighbour(answer_t aAction)
     delay(20);
     if( radio.available())
     {
-      radio.read(&payload_r, sizeof(payload_t)); 
+      radio.read(&payload, sizeof(payload_t)); 
 
-      if (payload_r.hop1 == theRadioNumber)
+      if (payload.hop1 == theRadioNumber)
       {    
-        if (payload_r.hop2 == 0)  // mensaje directo
+        if (payload.hop2 == 0)  // mensaje directo
         {
+          Serial.print("Rx: ");
+          Serial.println(payload.messageId);
+          result = result + peso;
         }
       }
    } 
+   peso = peso*2;
   } 
+  return result;
 }
 
 /*
@@ -534,8 +544,6 @@ void loop()
       {    
         if (payload_r.hop2 == 0)  // mensaje directo
         {
-          radio.stopListening();                                        // First, stop listening so we can talk   
-          delay (10);
           payload_original = payload_r;
           payload_r.messageId = payload_r.messageId+1;
           
@@ -548,7 +556,9 @@ void loop()
           payload_r.hop5 = payload_r.hop_reply5;
           payload_r.hop6 = payload_r.hop_reply6;
           payload_r.hop7 = payload_r.hop_reply7;
-          
+
+          radio.stopListening();                                        // First, stop listening so we can talk   
+          delay (10);
           radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
           delay (5);      
           radio.startListening();                                       // Now, resume listening so we catch the next packets.  
