@@ -17,6 +17,10 @@ bool RxWaiting = true;
 int theCurrentMessage = 0;
 int theMaxMessages;
 unsigned long last_time_message;
+int quality_service;
+unsigned long diff_time = 0;
+unsigned long lost = 0;
+unsigned long received = 0;
 
 byte addresses[][6] = {"BoxDo","BoxDo"};
 
@@ -188,6 +192,10 @@ void setup() {
   theMaxMessages = 5; 
 
   last_time_message = millis();
+
+  quality_service = 100;
+  lost = 0;
+  received = 0;
 }
 
 /*
@@ -211,7 +219,14 @@ void loop()
 		{
 		  payload_r.messageId=1; //Only to enter once
 		  radio.read( &payload_r, sizeof(payload_t) ); 
-			
+
+      Serial.print("Quality service: ");
+      Serial.print(quality_service);
+      Serial.print(" ");
+      Serial.print(lost);
+      Serial.print(" ");
+      Serial.println(received);
+      
       Serial.print("RX payload:");
       Serial.print(payload_r.messageId);
       Serial.print(" ");
@@ -239,7 +254,22 @@ void loop()
       Serial.print(" ");
       Serial.print(payload_r.action.action4);
       Serial.print("(+");
-      Serial.print(millis()-last_time_message);
+      diff_time = millis()-last_time_message;
+      Serial.print(diff_time);
+      
+      if (diff_time > 3200)
+      {
+        quality_service = quality_service - (100/theMaxMessages);
+        lost++;
+      }else
+      {
+        quality_service = quality_service + (100/theMaxMessages);
+        received++;
+        if (quality_service >100)
+        {
+          quality_service = 100;
+        }
+      }
       last_time_message = millis();
       Serial.print(")");
       Serial.print(" ");
