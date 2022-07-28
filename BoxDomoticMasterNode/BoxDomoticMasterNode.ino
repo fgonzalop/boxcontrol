@@ -72,10 +72,10 @@ void setup() {
 
   aIndex = 0;
   theRouting[aIndex].messageId = 100;
-  theRouting[aIndex].hop1      = 6;
+  theRouting[aIndex].hop1      = 2;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_NEIGHBOUR; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].action.action1 = REQUEST_OFF_RELAY_ACTION; 
+  theRouting[aIndex].action.action2 = 0; 
   theRouting[aIndex].hop2    = 0;
   theRouting[aIndex].hop3    = 0;
   theRouting[aIndex].hop4    = 0;
@@ -92,10 +92,10 @@ void setup() {
 
   aIndex = 1;
   theRouting[aIndex].messageId = 102;
-  theRouting[aIndex].hop1      = 5;
+  theRouting[aIndex].hop1      = 2;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
+  theRouting[aIndex].action.action1 = REQUEST_OFF_RELAY_ACTION; 
+  theRouting[aIndex].action.action2 = 1; 
   theRouting[aIndex].hop2    = 0;
   theRouting[aIndex].hop3    = 0;
   theRouting[aIndex].hop4    = 0;
@@ -112,11 +112,11 @@ void setup() {
 
   aIndex = 2;
   theRouting[aIndex].messageId = 104;
-  theRouting[aIndex].hop1      = 5;
+  theRouting[aIndex].hop1      = 2;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
-  theRouting[aIndex].hop2    = 4;
+  theRouting[aIndex].action.action1 = REQUEST_OFF_RELAY_ACTION; 
+  theRouting[aIndex].action.action2 = 2; 
+  theRouting[aIndex].hop2    = 0;
   theRouting[aIndex].hop3    = 0;
   theRouting[aIndex].hop4    = 0;
   theRouting[aIndex].hop5    = 0;
@@ -132,12 +132,12 @@ void setup() {
 
   aIndex = 3;
   theRouting[aIndex].messageId = 106;
-  theRouting[aIndex].hop1      = 5;
+  theRouting[aIndex].hop1      = 2;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
-  theRouting[aIndex].hop2    = 4;
-  theRouting[aIndex].hop3    = 9;
+  theRouting[aIndex].action.action1 = REQUEST_OFF_RELAY_ACTION; 
+  theRouting[aIndex].action.action2 = 6; 
+  theRouting[aIndex].hop2    = 0;
+  theRouting[aIndex].hop3    = 0;
   theRouting[aIndex].hop4    = 0;
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
@@ -152,13 +152,13 @@ void setup() {
 
   aIndex = 4;
   theRouting[aIndex].messageId = 108;
-  theRouting[aIndex].hop1      = 5;
+  theRouting[aIndex].hop1      = 2;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
-  theRouting[aIndex].hop2    = 4;
-  theRouting[aIndex].hop3    = 9;
-  theRouting[aIndex].hop4    = 3;
+  theRouting[aIndex].action.action1 = REQUEST_OFF_RELAY_ACTION; 
+  theRouting[aIndex].action.action2 = 7; 
+  theRouting[aIndex].hop2    = 0;
+  theRouting[aIndex].hop3    = 0;
+  theRouting[aIndex].hop4    = 0;
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
@@ -172,13 +172,13 @@ void setup() {
 
   aIndex = 5;
   theRouting[aIndex].messageId = 110;
-  theRouting[aIndex].hop1      = 6;
+  theRouting[aIndex].hop1      = 2;
   theRouting[aIndex].origen    = theRadioNumber;
-  theRouting[aIndex].action.action1 = REQUEST_TEMPERATURE_ACTION; 
-  theRouting[aIndex].action.action2 = SUCCESS_ANSWER; 
-  theRouting[aIndex].hop2    = 5;
-  theRouting[aIndex].hop3    = 4;
-  theRouting[aIndex].hop4    = 2;
+  theRouting[aIndex].action.action1 = REQUEST_OFF_RELAY_ACTION; 
+  theRouting[aIndex].action.action2 = 8; 
+  theRouting[aIndex].hop2    = 0;
+  theRouting[aIndex].hop3    = 0;
+  theRouting[aIndex].hop4    = 0;
   theRouting[aIndex].hop5    = 0;
   theRouting[aIndex].hop6    = 0;
   theRouting[aIndex].hop7    = 0;
