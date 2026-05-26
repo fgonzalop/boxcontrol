@@ -10,6 +10,7 @@
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
 RF24 radio(9,10);
+//RF24 radio(2,15);
 
 int theRadioNumber;
 int theRelayIndex;
@@ -39,11 +40,12 @@ void setup() {
   int aIndex;
   
   Serial.begin(115200);
-  Serial.println(F("*********************"));
-  Serial.println(F("BoxDomotic Node 2.0.3"));
-  Serial.println(F("*********************"));
+  Serial.println(F("***********************"));
+  Serial.println(F("BoxDomotic Node 2.0.4. "));
+  Serial.println(F("***********************"));
 
   theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
+  theRadioNumber = 2; //DEBUG
   if (theRadioNumber == 0xFF)
   {
     theRadioNumber = 0xFE;
@@ -56,6 +58,7 @@ void setup() {
   // Set the PA Level low to prevent power supply related issues since this is a
  // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
   radio.setPALevel(RF24_PA_HIGH);
+  
   
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
@@ -96,6 +99,19 @@ Serial.println(theRelayIndex);
 
    }
 
+  pinMode(8, OUTPUT);
+  digitalWrite(8, LOW);
+  pinMode(7, OUTPUT);
+  digitalWrite(7, LOW);
+  pinMode(6, OUTPUT);
+  digitalWrite(6, LOW);
+  pinMode(5, OUTPUT);
+  digitalWrite(5, LOW);
+  pinMode(2, OUTPUT);
+  digitalWrite(2, LOW);
+  pinMode(A1, OUTPUT);
+  digitalWrite(A1, LOW);
+
    theTemperaturePin = EEPROM.read(TEMPERATURE_PIN);
    if (theTemperaturePin == 0xFF)
    {
@@ -109,9 +125,11 @@ Serial.print(" ");
 Temperature();
 Serial.println(" OK");
   }
+  theTemperaturePin=4;//DEBUG
   
   thePIRPin = EEPROM.read(PIR_PIN);
-
+  thePIRPin = 0xFF;
+  thePIRPin = 3;//DEBUG
   if (thePIRPin == 0xFF)
   {
     Serial.println("PIR not configured");  
@@ -127,6 +145,7 @@ Serial.println(" OK");
   }
   
   theLuxPin = EEPROM.read(LUX_PIN);
+  theLuxPin = 0; //DEBUG
 
   if (theLuxPin == 0xFF)
   {
@@ -137,7 +156,7 @@ Serial.println(" OK");
      Serial.print("Configuring LUX pin ");
      Serial.print(theLuxPin); 
      Serial.print(" ");
-     theLuxPin = A7; //TBD
+     theLuxPin = A0; //TBD
      int sensorValue = analogRead(theLuxPin);
      // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
      float voltage = sensorValue * (5.0 / 1023.0);
@@ -293,7 +312,7 @@ Serial.println("RELAY STATUS... ");
       
       break;
 
-    default:
+    //default:
        aResult.action1 = NO_ANSWER;
        aResult.action2 = 0;
 Serial.print("DEFAULT ( ");
@@ -534,12 +553,48 @@ unsigned long AnswerLux(answer_t aAction)
  *    Se lee la parte de RF los datos.
  *    Se procesa y se manda ANSWER y PERFORM (si es diferido)
  */
+
+unsigned long currentTime = 0;
 void loop() 
 {     
+  
+  if (thePIR_START != currentTime)
+  {
+    Serial.print("PIR... ");
+    currentTime = thePIR_START;
+  }
    if( radio.available())
    {
       radio.read(&payload_r, sizeof(payload_t)); 
 
+      Serial.print(payload_r.origen);
+      Serial.print(payload_r.messageId); //DEBUG
+      //Serial.print(payload_r.action); //DEBUG
+      Serial.print(payload_r.spare); //DEBUG
+      Serial.print(payload_r.hop1); //DEBUG
+      Serial.print(payload_r.hop2); //DEBUG
+      Serial.print(payload_r.hop3); //DEBUG
+      Serial.print(payload_r.hop4); //DEBUG
+      Serial.print(payload_r.hop5); //DEBUG
+      Serial.print(payload_r.hop6); //DEBUG
+      Serial.print(payload_r.hop7); //DEBUG
+      Serial.print(payload_r.hop_reply1); //DEBUG
+      Serial.print(payload_r.hop_reply2); //DEBUG
+      Serial.print(payload_r.hop_reply3); //DEBUG
+      Serial.print(payload_r.hop_reply4); //DEBUG
+      Serial.print(payload_r.hop_reply5); //DEBUG
+      Serial.print(payload_r.hop_reply6); //DEBUG
+      Serial.println(payload_r.hop_reply7); //DEBUG
+
+      radio.stopListening();                                        // First, stop listening so we can talk   
+      delay (30);
+      payload_r.origen = 10;
+      radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
+      delay (10);      
+      radio.startListening();  
+   }
+}
+/*
       if (payload_r.hop1 == theRadioNumber)
       {    
         if (payload_r.hop2 == 0)  // mensaje directo
@@ -598,3 +653,4 @@ Serial.println("Routing msg");
    //Serial.print(thePIR);
 
 } // Loop
+*/
