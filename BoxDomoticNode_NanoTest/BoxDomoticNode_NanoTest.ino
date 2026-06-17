@@ -5,42 +5,31 @@
 #include <EEPROM.h>
 #include <SPI.h>
 #include "RF24.h"
-#include "BoxDomoticProtocol.h"
 #include "printf.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
 RF24 radio(9,10);
 
-//const int RADIO_ID_ADDRESS = 0;
+const int RADIO_ID_ADDRESS = 0;
 
 int theRadioNumber = 0;
 int aRadioNumber;
-int theRelayIndex;
 int theTemperaturePin;
 int thePIRPin;
 volatile unsigned long thePIR_START = 0;
 int theLuxPin;
-int theCurrentMessage = 0;
-
 byte addresses[][6] = {"BoxDo","BoxDo"};
-
-payload_t payload;
-payload_t payload_r;
-payload_t payload_original;
-payload_t theRouting[10];
-int       isWaitingRouting;
-unsigned long theTimeForTimeout;
-unsigned long theTimeout = TIMEOUT;
-int aCounter = 0;
-answer_t aAnswer;
-
 float theTemperature = 20.0;
-int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
 void Temperature();
-
 unsigned long currentTime = 0;
 byte message[30];
 float voltage;
+byte theRelay1 = 0;
+byte theRelay2 = 0;
+byte theRelay3 = 0;
+byte theRelay4 = 0;
+byte theRelay5 = 0;
+byte theRelay6 = 0;
 
 void setup() {
   int aIndex;
@@ -52,7 +41,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println(F("***********************"));
-  Serial.println(F("BoxDomotic Node 2.0.4. TEST"));
+  Serial.println(F("BoxDomotic Node 1.0.0. TEST"));
   Serial.println(F("***********************"));
 
   aRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
@@ -100,14 +89,13 @@ void setup() {
   pinMode(2, OUTPUT);
   pinMode(A1, OUTPUT);
 
-  digitalWrite(8, LOW);
-  digitalWrite(7, LOW);
-  digitalWrite(6, LOW);
-  digitalWrite(5, LOW);
-  digitalWrite(2, LOW);
-  digitalWrite(A1, LOW);
+  digitalWrite(8, HIGH);
+  digitalWrite(7, HIGH);
+  digitalWrite(6, HIGH);
+  digitalWrite(5, HIGH);
+  digitalWrite(2, HIGH);
+  digitalWrite(A1, HIGH);
 
-  theTemperaturePin = EEPROM.read(TEMPERATURE_PIN);
   theTemperaturePin=4;
   Serial.print(" ");  
   Temperature();
@@ -131,7 +119,6 @@ void setup() {
   Serial.println(" OK");
 
   radio.stopListening();
-  
 }
 
 /*
@@ -156,6 +143,7 @@ void Temperature()
   if (!ds.search(addr))
   {
     theTemperature = 25.0;//TBD
+    delay(500);
     return;
   }
   
@@ -202,9 +190,42 @@ void Temperature()
   Serial.println(celsius);
 }
 
+void createMessage()
+{
+  message[0] = theRadioNumber & 0xFF;
+  message[1] = (theRadioNumber >> 8) & 0xFF;
+  message[2] = (theRadioNumber >> 16) & 0xFF;
+  message[3] = (theRadioNumber >> 24) & 0xFF;
+  
+  message[5]=int(theTemperature);
+  message[6]=int((theTemperature-int(theTemperature))*100.0);
+  message[7]=int(voltage);
+  message[8]=int((voltage-int(voltage))*100.0);
+  message[9]=theRelay1;
+  message[10]=theRelay2;
+  message[11]=theRelay3;
+  message[12]=theRelay4;
+  message[13]=theRelay5;
+  message[14]=theRelay6;
+  message[16]=0; //Time for last PIR event, TBD
+  message[17]=0;
+  message[18]=0;
+  message[19]=0;
+}
+void Update()
+{
+  int sensorValue = analogRead(theLuxPin);
+     // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+  voltage = sensorValue * (5.0 / 1023.0);
+  // print out the value you read:
+  Serial.print(voltage);
+
+  Temperature();
+  Serial.println(theTemperature);
+}
+
 void loop() 
 {     
-  
   if (thePIR_START != currentTime)
   {
     Serial.print("PIR... ");
@@ -214,72 +235,57 @@ void loop()
 
   delay(1000);
   //Serial.println("Otro");
-  Temperature();
-  message[5]=int(theTemperature);
-  message[6]=int((theTemperature-int(theTemperature))*100.0);
-  message[7]=int(voltage);
-  message[8]=int((voltage-int(voltage))*100.0);
-  radio.write( &message, 21 );             
-  message[4]=0;
+  Update();
+  digitalWrite(8, LOW);
+  theRelay1 = 0xFF;
+  createMessage();
+  radio.write( &message, 21 ); 
+  delay(1000);
+
+  Update();
+  digitalWrite(8, HIGH);
+  theRelay1 = 0x00;
+  digitalWrite(7, LOW);
+  theRelay2 = 0xFF;
+  createMessage();
+  radio.write( &message, 21 ); 
+  delay(1000);
+  
+  Update();
+  digitalWrite(7, HIGH);
+  theRelay2 = 0x00;
+  digitalWrite(6, LOW);
+  theRelay3 = 0xFF; 
+  createMessage();
+  radio.write( &message, 21 ); 
+  delay(1000);
+
+  Update();
+  digitalWrite(6, HIGH);
+  theRelay3 = 0x00;
+  digitalWrite(5, LOW);
+  theRelay4 = 0xFF;
+  createMessage();
+  radio.write( &message, 21 ); 
+  delay(1000);
+
+  Update();
+  digitalWrite(5, HIGH);
+  theRelay4 = 0x00;
+  digitalWrite(2, LOW);
+  theRelay5 = 0xFF;
+  createMessage();
+  radio.write( &message, 21 ); 
+  delay(1000);
+
+  Update();
+  digitalWrite(2, HIGH);
+  theRelay5 = 0x00;
+  digitalWrite(A1, LOW);
+  theRelay6 = 0xFF;
+  createMessage();
+  radio.write( &message, 21 ); 
+  delay(1000);
+  digitalWrite(A1, HIGH);
+  theRelay6 = 0x00;
 }
-
-/*
-      if (payload_r.hop1 == theRadioNumber)
-      {    
-        if (payload_r.hop2 == 0)  // mensaje directo
-        {
-          payload_original = payload_r;
-          payload_r.messageId = payload_r.messageId+1;
-          
-          payload_r.origen = theRadioNumber;
-          payload_r.action = Answer(payload_r.action);
-          payload_r.hop1 = payload_r.hop_reply1;
-          payload_r.hop2 = payload_r.hop_reply2;
-          payload_r.hop3 = payload_r.hop_reply3;
-          payload_r.hop4 = payload_r.hop_reply4;
-          payload_r.hop5 = payload_r.hop_reply5;
-          payload_r.hop6 = payload_r.hop_reply6;
-          payload_r.hop7 = payload_r.hop_reply7;
-
-          radio.stopListening();                                        // First, stop listening so we can talk   
-          delay (10);
-          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (5);      
-          radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-Serial.print("requesting..." );
-      Perform(payload_original.action);   
-Serial.println(F("Sent response "));
-        }
-		else
-        { 
-Serial.println("Routing msg");
-          payload_r.origen = theRadioNumber;
-          payload_r.hop1 = payload_r.hop2;
-          payload_r.hop2 = payload_r.hop3;
-          payload_r.hop3 = payload_r.hop4;
-          payload_r.hop4 = payload_r.hop5;
-          payload_r.hop5 = payload_r.hop6;
-          payload_r.hop6 = payload_r.hop7;
-          payload_r.hop7 = 0;
-          payload_r.hop_reply7 = payload_r.hop_reply6;
-          payload_r.hop_reply6 = payload_r.hop_reply5;
-          payload_r.hop_reply5 = payload_r.hop_reply4;
-          payload_r.hop_reply4 = payload_r.hop_reply3;
-          payload_r.hop_reply3 = payload_r.hop_reply2;
-          payload_r.hop_reply2 = payload_r.hop_reply1;
-          payload_r.hop_reply1 = theRadioNumber;
-          
-          radio.stopListening();                                        // First, stop listening so we can talk   
-          delay (10);
-          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (5);      
-          radio.startListening();
-          //delay(10);
-        }
-      }
-    } 
-   delay (1);
-   //Serial.print(thePIR);
-
-} // Loop
-*/

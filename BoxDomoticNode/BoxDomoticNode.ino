@@ -5,60 +5,59 @@
 #include <EEPROM.h>
 #include <SPI.h>
 #include "RF24.h"
-#include "BoxDomoticProtocol.h"
 #include "printf.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
 RF24 radio(9,10);
-//RF24 radio(2,15);
 
-int theRadioNumber;
-int theRelayIndex;
+const int RADIO_ID_ADDRESS = 0;
+
+int theRadioNumber = 0;
+int aRadioNumber;
 int theTemperaturePin;
 int thePIRPin;
 volatile unsigned long thePIR_START = 0;
 int theLuxPin;
-int theCurrentMessage = 0;
-
 byte addresses[][6] = {"BoxDo","BoxDo"};
-
-payload_t payload;
-payload_t payload_r;
-payload_t payload_original;
-payload_t theRouting[10];
-int       isWaitingRouting;
-unsigned long theTimeForTimeout;
-unsigned long theTimeout = TIMEOUT;
-int aCounter = 0;
-answer_t aAnswer;
-
 float theTemperature = 20.0;
-int theRelay[MAX_RELAY] = {0,0,0,0,0,0,0,0,0,0};
 void Temperature();
+unsigned long currentTime = 0;
+byte message[30];
+float voltage;
 
 void setup() {
   int aIndex;
   
   Serial.begin(115200);
   Serial.println(F("***********************"));
-  Serial.println(F("BoxDomotic Node 2.0.4. "));
+  Serial.println(F("BoxDomotic Node 3.0.0 "));
   Serial.println(F("***********************"));
 
-  theRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
-  theRadioNumber = 2; //DEBUG
-  if (theRadioNumber == 0xFF)
-  {
-    theRadioNumber = 0xFE;
-  }
+  aRadioNumber = EEPROM.read(RADIO_ID_ADDRESS);
+  theRadioNumber = aRadioNumber;
+  Serial.println(aRadioNumber);
+  aRadioNumber = EEPROM.read(RADIO_ID_ADDRESS+1);
+  Serial.println(aRadioNumber);
+  theRadioNumber = theRadioNumber + aRadioNumber*0x100;
+  aRadioNumber = EEPROM.read(RADIO_ID_ADDRESS+2);
+  Serial.println(aRadioNumber);
+  theRadioNumber = theRadioNumber + aRadioNumber*0x10000;
+  aRadioNumber = EEPROM.read(RADIO_ID_ADDRESS+3);
+  Serial.println(aRadioNumber);
+  theRadioNumber = theRadioNumber + aRadioNumber*0x1000000;
+  
   Serial.print("Radio ID ");
   Serial.println(theRadioNumber);
-  
+  message[0] = theRadioNumber & 0xFF;
+  message[1] = (theRadioNumber >> 8) & 0xFF;
+  message[2] = (theRadioNumber >> 16) & 0xFF;
+  message[3] = (theRadioNumber >> 24) & 0xFF;
+
   radio.begin();
 
   // Set the PA Level low to prevent power supply related issues since this is a
  // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
   radio.setPALevel(RF24_PA_HIGH);
-  
   
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
@@ -69,101 +68,47 @@ void setup() {
   printf_begin();
   radio.printDetails();
   
-  isWaitingRouting = 0;
-
-  theRelayIndex = EEPROM.read(RELAY_INDEX);
-  if (theRelayIndex == 0xFF)
-  {
-Serial.println("Relay's not configured");
-     for (aIndex=0; aIndex<MAX_RELAY; aIndex++)
-     {
-        theRelay[aIndex]= 0;
-     }
-      
-  }else
-  {
-Serial.print("Relay index ");
-Serial.println(theRelayIndex);
-     for (aIndex=0; aIndex<theRelayIndex; aIndex++)
-     {
-        theRelay[aIndex]= EEPROM.read(RELAY_INDEX+aIndex+1);
-        pinMode(theRelay[aIndex], OUTPUT);
-        digitalWrite(theRelay[aIndex], LOW);
-     }   
-     
-     delay (1500);
-     for (aIndex=0; aIndex<theRelayIndex; aIndex++)
-     {
-        digitalWrite(theRelay[aIndex], HIGH);
-     }
-
-   }
-
+  //Pins for relays
   pinMode(8, OUTPUT);
-  digitalWrite(8, LOW);
   pinMode(7, OUTPUT);
-  digitalWrite(7, LOW);
   pinMode(6, OUTPUT);
-  digitalWrite(6, LOW);
   pinMode(5, OUTPUT);
-  digitalWrite(5, LOW);
   pinMode(2, OUTPUT);
-  digitalWrite(2, LOW);
   pinMode(A1, OUTPUT);
-  digitalWrite(A1, LOW);
 
-   theTemperaturePin = EEPROM.read(TEMPERATURE_PIN);
-   if (theTemperaturePin == 0xFF)
-   {
-Serial.println("Temperature PIN not configured");      
-   }
-   else
-   {
-Serial.print("Configuring Temperature pin ");
-Serial.print(theTemperaturePin); 
-Serial.print(" ");  
-Temperature();
-Serial.println(" OK");
-  }
-  theTemperaturePin=4;//DEBUG
-  
-  thePIRPin = EEPROM.read(PIR_PIN);
-  thePIRPin = 0xFF;
-  thePIRPin = 3;//DEBUG
-  if (thePIRPin == 0xFF)
-  {
-    Serial.println("PIR not configured");  
-  }
-  else
-  {
-     Serial.print("Configuring PIR pin ");
-     Serial.print(thePIRPin); 
-     pinMode(thePIRPin, INPUT_PULLUP);
-     attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, RISING);
-     
-     Serial.println(" OK");
-  }
-  
-  theLuxPin = EEPROM.read(LUX_PIN);
-  theLuxPin = 0; //DEBUG
+  /*digitalWrite(8, LOW);
+  digitalWrite(7, LOW);
+  digitalWrite(6, LOW);
+  digitalWrite(5, LOW);
+  digitalWrite(2, LOW);
+  digitalWrite(A1, LOW);*/
 
-  if (theLuxPin == 0xFF)
-  {
-    Serial.println("LUX not configured");  
-  }
-  else
-  {     
-     Serial.print("Configuring LUX pin ");
-     Serial.print(theLuxPin); 
-     Serial.print(" ");
-     theLuxPin = A0; //TBD
-     int sensorValue = analogRead(theLuxPin);
+  theTemperaturePin=4;
+  Serial.print(" ");  
+  Temperature();
+  Serial.println(" OK");
+  
+  thePIRPin = 3;
+  Serial.print("Configuring PIR pin ");
+  Serial.print(thePIRPin); 
+  pinMode(thePIRPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(thePIRPin), PIR_ISR, RISING);   
+  Serial.println(" OK");
+  
+  Serial.print("Configuring LUX pin ");
+  theLuxPin = A0;
+  int sensorValue = analogRead(theLuxPin);
      // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-     float voltage = sensorValue * (5.0 / 1023.0);
-     // print out the value you read:
-     Serial.print(voltage);
-     Serial.println(" OK");
-  }
+  voltage = sensorValue * (5.0 / 1023.0);
+  // print out the value you read:
+  Serial.print(voltage);
+  Serial.println(" OK");  
+
+  message[5]=int(theTemperature);
+  message[6]=int((theTemperature-int(theTemperature))*100.0);
+  message[7]=int(voltage);
+  message[8]=int((voltage-int(voltage))*100.0);
+  //radio.write( &message, 21 );  
 }
 
 /*
@@ -174,304 +119,16 @@ void PIR_ISR()
    thePIR_START = millis();
 }
 
-
-/*
- * Procedure ANSWER
- *   Dependiendo de la ACCION se hará una llamada a una función definida
- *   
- */
-answer_t Answer(answer_t aAction)
+void Update()
 {
-  answer_t aResult;
-  float aTemperature;
-  switch (aAction.action1)
-  {
-    case SET_ID_ACTION:
-      aResult.action1 = SUCCESS_ANSWER;   
-      aResult.action2 = theRadioNumber; 
-      aResult.action3 = 0;
-      break;
-    case REQUEST_NEIGHBOUR:
-      aResult.action1 = SUCCESS_ANSWER;   
-      aResult.action2 = 0xFF; 
-      aResult.action3 = AnswerNeighbour(aAction);
-      break;
-    case REQUEST_TEMPERATURE_ACTION:
-       aResult.action1 = SUCCESS_ANSWER;
-       aTemperature = AnswerTemperature(aAction);
-       aResult.action2 = (int)(aTemperature);
-       aResult.action3 = (int)((aTemperature - (int)aTemperature)*100);
-Serial.print("Temperature (");
-Serial.print(aAction.action2);
-Serial.print(")");
-Serial.print(aResult.action2);
-Serial.print(" ");
-Serial.println(aResult.action3);
-       break;
-    case REQUEST_LUX_ACTION:
-       aResult.action1 = SUCCESS_ANSWER;
-       aResult.action2 = AnswerLux(aAction);
-Serial.print("Lux (");
-Serial.print(aAction.action2);
-Serial.print(")");
-Serial.println(aResult.action2);
-       break;
-    case REQUEST_ON_RELAY_ACTION:
-       aResult.action1 = SUCCESS_ANSWER;
-       if ( aAction.action2 > MAX_RELAY-1)
-       {  //Out of range
-          aResult.action2 = NO_ANSWER;
-          Serial.println("Value out of range");
-          break;
-       }
-       
-       if (theRelay[aAction.action2] == 0)
-       {  //No relay conected in this value
-          aResult.action2 = NO_ANSWER;
-          Serial.println("No relay pin connected");
-       }else
-       {
-          aResult.action2 = SUCCESS_ANSWER; 
-          digitalWrite(theRelay[aAction.action2], HIGH);
-       }
-       
-Serial.print("ON_RELAY (");
-Serial.print(aAction.action2);
-Serial.print(")");
-Serial.println(aResult.action2);
-       break;
-    case REQUEST_OFF_RELAY_ACTION:
-       aResult.action1 = SUCCESS_ANSWER;
-       if ( aAction.action2 > MAX_RELAY-1)
-       {  //Out of range
-          aResult.action2 = NO_ANSWER;
-          Serial.println("Value out of range");
-          break;
-       }
-       
-       if (theRelay[aAction.action2] == 0)
-       {  //No relay conected in this value
-          aResult.action2 = NO_ANSWER;
-          Serial.println("No relay pin connected");
-       }else
-       {
-          aResult.action2 = SUCCESS_ANSWER; 
-          digitalWrite(theRelay[aAction.action2], LOW);
-       }
-       
-Serial.print("OFF_RELAY (");
-Serial.print(aAction.action2);
-Serial.print(")");
-Serial.print(theRelay[aAction.action2]);
-Serial.print(" ");
-Serial.println(aResult.action2);
-       break;   
-    case REQUEST_PIR_ACTION:
-      aResult.action1 = SUCCESS_ANSWER;    
-Serial.print("PIR... ");
-Serial.print(thePIR_START);  
-Serial.print(" ");
-Serial.print((int)(millis()-thePIR_START)/1000);  
-      if (thePIR_START == 0)
-      {
-          aResult.action2 = 0; 
-      }
-      else
-      {
-          aResult.action2 = (int)(millis()-thePIR_START)/1000;
-      }
-         
-      thePIR_START = 0;
-      break;
-    case REQUEST_RELAY_STATUS_ACTION:
-      aResult.action1 = SUCCESS_ANSWER;   
-      aResult.action2 = 0; 
-Serial.println("RELAY STATUS... ");
-      int aResultado = 0;
-      if (theRelayIndex <= 8)
-      {
-        for (int aIndex=0; aIndex<theRelayIndex; aIndex++)
-        {
-          aResultado= aResultado*2 + digitalRead(theRelay[aIndex]);
-        } 
-        aResult.action2 = aResultado;
-        aResult.action3 = 0;
-      }
-      else
-      {          
-          for (int aIndex=0; aIndex<8; aIndex++)
-          {
-//Serial.println(aResultado);
-            aResultado= aResultado*2 + digitalRead(theRelay[aIndex]);
-          } 
-          aResult.action2 = aResultado;
-          aResult.action3 = digitalRead(theRelay[9]);   
-      }
-      Serial.println(aResult.action2);
-      Serial.println(aResult.action3);
-      
-      break;
+  int sensorValue = analogRead(theLuxPin);
+     // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+  voltage = sensorValue * (5.0 / 1023.0);
+  // print out the value you read:
+  Serial.print(voltage);
 
-    //default:
-       aResult.action1 = NO_ANSWER;
-       aResult.action2 = 0;
-Serial.print("DEFAULT ( ");
-Serial.print(aAction.action1);
-Serial.print(" )");
-Serial.println(aResult.action2);
-       break;
-  }
-
-  return aResult;
-}
-
-/*
- * Procedure PERFORM
- *    Sólo se ejecutará algo diferido si el tiempo de consulta es alto, p.e. TEMPERATURA
- *    
- */
-
-void Perform(answer_t aAction)
-{
-Serial.print(" ");
-Serial.print(aAction.action1);
-Serial.print(" ");
-  switch (aAction.action1)
-  {
-    case REQUEST_TEMPERATURE_ACTION:
-       PerformTemperature(aAction);
-       break;
-    default:
-       break;
-  }
-}
-
-/*
- * Procedure AnswerNeighbour
- */
-int AnswerNeighbour(answer_t aAction)
-{
-  int result = 0;
-  int peso   = 1;
-  int aIndex = 0;
-  for (aIndex = 1; aIndex <10; aIndex++)
-  {
-    if (aIndex == theRadioNumber)
-    { 
-      aIndex++;
-    }
-    
-    theRouting[theCurrentMessage].messageId = 200;
-    theRouting[theCurrentMessage].hop1      = aIndex;
-    theRouting[theCurrentMessage].origen    = theRadioNumber;
-    theRouting[theCurrentMessage].action.action1 = SET_ID_ACTION; 
-    theRouting[theCurrentMessage].action.action2 = SUCCESS_ANSWER; 
-    theRouting[theCurrentMessage].hop2    = 0;
-    theRouting[theCurrentMessage].hop3    = 0;
-    theRouting[theCurrentMessage].hop4    = 0;
-    theRouting[theCurrentMessage].hop5    = 0;
-    theRouting[theCurrentMessage].hop6    = 0;
-    theRouting[theCurrentMessage].hop7    = 0;
-    theRouting[theCurrentMessage].hop_reply1 = theRadioNumber;
-    theRouting[theCurrentMessage].hop_reply2 = 0;
-    theRouting[theCurrentMessage].hop_reply3 = 0;
-    theRouting[theCurrentMessage].hop_reply4 = 0;
-    theRouting[theCurrentMessage].hop_reply5 = 0;
-    theRouting[theCurrentMessage].hop_reply6 = 0;
-    theRouting[theCurrentMessage].hop_reply7 = 0;
-  
-    Serial.print("TX payload:");
-    Serial.print(theRouting[theCurrentMessage].messageId);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].origen);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop1);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop2);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop3);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop4);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop5);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop6);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop7);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].action.action1);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].action.action2);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].action.action3);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].action.action4);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply1);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply2);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply3);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply4);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply5);
-    Serial.print(" ");
-    Serial.print(theRouting[theCurrentMessage].hop_reply6);
-    Serial.print(" ");
-    Serial.println(theRouting[theCurrentMessage].hop_reply7);
-
-    radio.stopListening();
-    delay(10);
-    radio.write( &theRouting[theCurrentMessage], sizeof(payload_t) );              // Send the final one back.
-    delay(5);
-    radio.startListening();
-    delay(20);
-    if( radio.available())
-    {
-      radio.read(&payload, sizeof(payload_t)); 
-
-      if (payload.hop1 == theRadioNumber)
-      {    
-        if (payload.hop2 == 0)  // mensaje directo
-        {
-          Serial.print("Rx: ");
-          Serial.println(payload.messageId);
-          result = result + peso;
-        }
-      }
-   } 
-   peso = peso*2;
-  } 
-  return result;
-}
-
-/*
- * Procedure ANSWER (TEMPERATURE)
- *    Aquí se devuelve la temperatura última leída.
- */
-float AnswerTemperature(answer_t aAction)
-{
-   return theTemperature;
-}
-
-/*
- * Procedure PERFORM (TEMPERATURE)
- *    Lectura de la temperatura en modo DS18B20
- *    
- */
-void PerformTemperature(answer_t aAction)
-{
-  //OneWire  ds(aAction.action2);
-  if (theTemperaturePin == 0xFF)
-  {
-    theTemperature = 25.0;//Valor por defecto
-    return;      
-  }
-  else
-  {
-    Temperature();
-  }
+  Temperature();
+  Serial.println(theTemperature);
 }
 
 void Temperature()
@@ -487,6 +144,7 @@ void Temperature()
   if (!ds.search(addr))
   {
     theTemperature = 25.0;//TBD
+    delay(500);
     return;
   }
   
@@ -534,123 +192,73 @@ void Temperature()
 }
 
 /*
- * Procedure ANSWER (LUX)
- *    Aquí se devuelve la cantidad de lux leída.
+ * extractID
+ * Extrae el RadioID de los primeros 4 bytes del buffer recibido
  */
-unsigned long AnswerLux(answer_t aAction)
+unsigned long extractID(byte* buffer)
 {
-    int sensorValue = analogRead(theLuxPin);
-    // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-    float voltage = sensorValue * (5.0 / 1023.0);
-    // print out the value you read:
-//    Serial.print(voltage);
-     
-    return (int)(voltage* 255.0/5.0);
+  unsigned long radioID = 0;
+  radioID = buffer[0];
+  radioID += buffer[1] * 0x100;
+  radioID += buffer[2] * 0x10000;
+  radioID += buffer[3] * 0x1000000;
+  return radioID;
 }
 
-/*
- * Procedure loop
- *    Se lee la parte de RF los datos.
- *    Se procesa y se manda ANSWER y PERFORM (si es diferido)
- */
-
-unsigned long currentTime = 0;
 void loop() 
 {     
+  byte aRxMessage[30] = {0};
   
   if (thePIR_START != currentTime)
   {
     Serial.print("PIR... ");
     currentTime = thePIR_START;
   }
+
    if( radio.available())
    {
-      radio.read(&payload_r, sizeof(payload_t)); 
-
-      Serial.print(payload_r.origen);
-      Serial.print(payload_r.messageId); //DEBUG
-      //Serial.print(payload_r.action); //DEBUG
-      Serial.print(payload_r.spare); //DEBUG
-      Serial.print(payload_r.hop1); //DEBUG
-      Serial.print(payload_r.hop2); //DEBUG
-      Serial.print(payload_r.hop3); //DEBUG
-      Serial.print(payload_r.hop4); //DEBUG
-      Serial.print(payload_r.hop5); //DEBUG
-      Serial.print(payload_r.hop6); //DEBUG
-      Serial.print(payload_r.hop7); //DEBUG
-      Serial.print(payload_r.hop_reply1); //DEBUG
-      Serial.print(payload_r.hop_reply2); //DEBUG
-      Serial.print(payload_r.hop_reply3); //DEBUG
-      Serial.print(payload_r.hop_reply4); //DEBUG
-      Serial.print(payload_r.hop_reply5); //DEBUG
-      Serial.print(payload_r.hop_reply6); //DEBUG
-      Serial.println(payload_r.hop_reply7); //DEBUG
+      radio.read(aRxMessage, 21);
 
       radio.stopListening();                                        // First, stop listening so we can talk   
-      delay (30);
-      payload_r.origen = 10;
-      radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-      delay (10);      
+      delay (10);
+      Serial.print("Rx..");
+
+      if (extractID(aRxMessage)==theRadioNumber)
+      {
+        Serial.print("Received: ");
+        for (int i = 0; i < 30; i++)
+        {
+          Serial.print(aRxMessage[i], HEX);
+          Serial.print(" ");
+        }
+        Serial.println();
+        
+        switch (aRxMessage[4])
+        {
+          case 1:
+            digitalWrite(8, HIGH);
+            break;
+          case 2:
+            digitalWrite(8, LOW);
+            break;
+          case 3:
+            digitalWrite(7, HIGH);
+            break;
+          case 4:
+            digitalWrite(7, LOW);
+            break;
+          default:
+            break;
+        }
+        Update();
+        message[5]=int(theTemperature);
+        message[6]=int((theTemperature-int(theTemperature))*100.0);
+        message[7]=int(voltage);
+        message[8]=int((voltage-int(voltage))*100.0);
+        radio.write( &message, 21 );  
+        delay(5);
+      }
       radio.startListening();  
    }
+   delay(100);
 }
-/*
-      if (payload_r.hop1 == theRadioNumber)
-      {    
-        if (payload_r.hop2 == 0)  // mensaje directo
-        {
-          payload_original = payload_r;
-          payload_r.messageId = payload_r.messageId+1;
-          
-          payload_r.origen = theRadioNumber;
-          payload_r.action = Answer(payload_r.action);
-          payload_r.hop1 = payload_r.hop_reply1;
-          payload_r.hop2 = payload_r.hop_reply2;
-          payload_r.hop3 = payload_r.hop_reply3;
-          payload_r.hop4 = payload_r.hop_reply4;
-          payload_r.hop5 = payload_r.hop_reply5;
-          payload_r.hop6 = payload_r.hop_reply6;
-          payload_r.hop7 = payload_r.hop_reply7;
-
-          radio.stopListening();                                        // First, stop listening so we can talk   
-          delay (10);
-          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (5);      
-          radio.startListening();                                       // Now, resume listening so we catch the next packets.  
-Serial.print("requesting..." );
-      Perform(payload_original.action);   
-Serial.println(F("Sent response "));
-        }
-		else
-        { 
-Serial.println("Routing msg");
-          payload_r.origen = theRadioNumber;
-          payload_r.hop1 = payload_r.hop2;
-          payload_r.hop2 = payload_r.hop3;
-          payload_r.hop3 = payload_r.hop4;
-          payload_r.hop4 = payload_r.hop5;
-          payload_r.hop5 = payload_r.hop6;
-          payload_r.hop6 = payload_r.hop7;
-          payload_r.hop7 = 0;
-          payload_r.hop_reply7 = payload_r.hop_reply6;
-          payload_r.hop_reply6 = payload_r.hop_reply5;
-          payload_r.hop_reply5 = payload_r.hop_reply4;
-          payload_r.hop_reply4 = payload_r.hop_reply3;
-          payload_r.hop_reply3 = payload_r.hop_reply2;
-          payload_r.hop_reply2 = payload_r.hop_reply1;
-          payload_r.hop_reply1 = theRadioNumber;
-          
-          radio.stopListening();                                        // First, stop listening so we can talk   
-          delay (10);
-          radio.write( &payload_r, sizeof(payload_t) );              // Send the final one back.
-          delay (5);      
-          radio.startListening();
-          //delay(10);
-        }
-      }
-    } 
-   delay (1);
-   //Serial.print(thePIR);
-
-} // Loop
-*/

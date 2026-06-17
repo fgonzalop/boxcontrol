@@ -32,7 +32,7 @@ void setup() {
   Serial.print("Radio ID ");
   Serial.println(theRadioNumber);
 
-  theRadioNumber = 3;
+  theRadioNumber = 5;
   EEPROM.write(RADIO_ID_ADDRESS, theRadioNumber & 0xFF);
   EEPROM.write(RADIO_ID_ADDRESS+1, (theRadioNumber >> 8) & 0xFF);
   EEPROM.write(RADIO_ID_ADDRESS+2, (theRadioNumber >> 16) & 0xFF);

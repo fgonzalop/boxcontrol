@@ -9,7 +9,8 @@
 #include "printf.h"
 
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 9 & 10 */
-RF24 radio(9,10);
+//RF24 radio(9,10);
+RF24 radio(2,15);
 
 int theRadioNumber;
 volatile unsigned long thePIR_START = 0;
@@ -56,6 +57,7 @@ void setup() {
   radio.openReadingPipe(1,addresses[0]);
 
   int theMasterTxPin = EEPROM.read(MASTER_TX_PIN);
+  theMasterTxPin = 1; // Forcing Master Tx mode for testing
   if (theMasterTxPin == 1)
   {
     RxWaiting = false;  
