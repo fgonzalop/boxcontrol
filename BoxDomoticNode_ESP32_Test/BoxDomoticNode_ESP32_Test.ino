@@ -143,6 +143,7 @@ void loop()
     }
   client.publish("mytopic/OTA", payload);
   client.publish("mytopic/NodeId", String((int)message[0]));
+  client.publish("mytopic/PIR", String((int)message[4]));
   client.publish("mytopic/Tra", String((int)message[5])+"."+String((int)message[6]));
   client.publish("mytopic/Lux", String((int)message[7])+"."+String((int)message[8]));
   client.publish("mytopic/Relay0", String((int)message[9]));

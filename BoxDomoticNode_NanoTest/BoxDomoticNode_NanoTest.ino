@@ -127,6 +127,7 @@ void setup() {
 void PIR_ISR()
 {
    thePIR_START = millis();
+   message[4]=1;
 }
 
 
@@ -240,6 +241,7 @@ void loop()
   theRelay1 = 0xFF;
   createMessage();
   radio.write( &message, 21 ); 
+  message[4]=0;
   delay(1000);
 
   Update();
@@ -249,6 +251,7 @@ void loop()
   theRelay2 = 0xFF;
   createMessage();
   radio.write( &message, 21 ); 
+  message[4]=0;
   delay(1000);
   
   Update();
@@ -258,6 +261,7 @@ void loop()
   theRelay3 = 0xFF; 
   createMessage();
   radio.write( &message, 21 ); 
+  message[4]=0;
   delay(1000);
 
   Update();
@@ -267,6 +271,7 @@ void loop()
   theRelay4 = 0xFF;
   createMessage();
   radio.write( &message, 21 ); 
+  message[4]=0;
   delay(1000);
 
   Update();
@@ -276,6 +281,7 @@ void loop()
   theRelay5 = 0xFF;
   createMessage();
   radio.write( &message, 21 ); 
+  message[4]=0;
   delay(1000);
 
   Update();
@@ -285,6 +291,7 @@ void loop()
   theRelay6 = 0xFF;
   createMessage();
   radio.write( &message, 21 ); 
+  message[4]=0;
   delay(1000);
   digitalWrite(A1, HIGH);
   theRelay6 = 0x00;
