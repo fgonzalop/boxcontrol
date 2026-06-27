@@ -1,0 +1,49 @@
+network = [ 
+{"planta": "buhardilla", "boxdomotics":
+[
+{"id":"1", "name":"terraza",  "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"2", "name":"ventana",  "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"3", "name":"tv",       "model":"arduino8266", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"4", "name":"escalera", "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1}
+]},
+
+{"planta": "primera_planta", "boxdomotics":
+[
+{"id":"5", "name":"hab_guest1",  "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"6", "name":"hab_guest2",  "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"7", "name":"pasillo_hab", "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"32", "name":"calefaccion", "model":"arduinoDue ", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"8", "name":"salon1",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":2},
+{"id":"9", "name":"salon2",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":3},
+{"id":"10", "name":"salon3",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"11", "name":"cocina1",     "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":2},
+{"id":"12", "name":"cocina2",     "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"13", "name":"despensa",    "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"15", "name":"pasillo_esc", "model":"arduino8266", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0}
+]},
+
+{"planta": "planta_calle", "boxdomotics":
+[
+{"id":"14", "name":"plancha1",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"16", "name":"plancha2",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"17", "name":"plancha3",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"31", "name":"calefaccion",   "model":"arduinoDue ", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"18", "name":"vestidor",      "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":1},
+{"id":"19", "name":"hab_master",    "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":2},
+{"id":"20", "name":"hab_marta1",    "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":2},
+{"id":"21", "name":"hab_marta2",    "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"23", "name":"pasillo",       "model":"arduino8266", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"22", "name":"hab_patricia1", "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":3},
+{"id":"25", "name":"hab_patricia2", "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"26", "name":"cochera",       "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0}
+]},
+
+{"planta": "sotano", "boxdomotics":
+[
+{"id":"27", "name":"caldera",    "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"28", "name":"cocinilla1", "model":"arduino8266", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"29", "name":"cocinilla2", "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"30", "name":"escalera",   "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0}
+]}
+
+]
