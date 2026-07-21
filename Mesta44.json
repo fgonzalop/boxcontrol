@@ -41,7 +41,7 @@ network = [
 {"planta": "sotano", "boxdomotics":
 [
 {"id":"27", "name":"caldera",    "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
-{"id":"28", "name":"cocinilla1", "model":"arduino8266", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
+{"id":"24", "name":"cocinilla1", "model":"arduino8266", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
 {"id":"29", "name":"cocinilla2", "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0},
 {"id":"30", "name":"escalera",   "model":"arduinoNano", "lux":"si", "pir":"si", "temperatura":"si", "persiana":0}
 ]}
