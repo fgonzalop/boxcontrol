@@ -42,18 +42,42 @@ byte mensaje[32] = {0};
 uint32_t recibidos = 0;
 unsigned long ultimoRx = 0;
 
+// Antena 13x14 con esquina superior izquierda en (x, y):
+// círculo arriba y mástil desde el centro del círculo hasta la base
+void iconoAntena(int x, int y) {
+  int cx = x + 6;
+  int cy = y + 4;
+  display.drawCircle(cx, cy, 4, SSD1306_WHITE);                    // círculo
+  display.drawLine(cx, cy, cx, y + 13, SSD1306_WHITE);             // mástil
+  display.drawLine(cx - 3, y + 13, cx + 3, y + 13, SSD1306_WHITE); // base
+}
+
+// Símbolo WiFi: punto en (cx, cy) y tres arcos de 90° (de 90° a 0°: arriba -> derecha)
+void iconoWifi(int cx, int cy) {
+  display.fillCircle(cx, cy, 1, SSD1306_WHITE);
+  display.drawCircleHelper(cx, cy, 4, 0x2, SSD1306_WHITE);   // 0x2 = cuadrante superior derecho
+  display.drawCircleHelper(cx, cy, 8, 0x2, SSD1306_WHITE);
+  display.drawCircleHelper(cx, cy, 12, 0x2, SSD1306_WHITE);
+}
+
 void mostrar() {
   display.clearDisplay();
   display.setTextSize(1);
 
   // La OLED es bicolor: filas 0-15 amarillas (fijo en hardware), 16-63 azules.
-  // Título centrado en la franja amarilla; los datos van en la zona azul.
-  const char* titulo = "BOX DOMOTIC MASTER";
+  // Franja amarilla: antena RF24 (izda), título centrado, WiFi (dcha).
+  const char* titulo = "BOX DOMOTIC";
   int16_t x1, y1;
   uint16_t w, h;
   display.getTextBounds(titulo, 0, 0, &x1, &y1, &w, &h);
   display.setCursor((128 - w) / 2, (16 - h) / 2);
   display.print(titulo);
+
+  if (radioOk) iconoAntena(0, 1);
+
+  // WiFi: parpadea mientras conecta, fijo cuando está conectado
+  bool wifiOk = WiFi.status() == WL_CONNECTED;
+  if (wifiOk || (millis() / 500) % 2 == 0) iconoWifi(115, 14);
 
   // Línea 1: WiFi
   display.setCursor(0, 16);
@@ -156,7 +180,7 @@ void loop() {
     led(false, true, false);
   }
 
-  if (millis() - ultimoRefresco > 1000) {
+  if (millis() - ultimoRefresco > 250) {
     ultimoRefresco = millis();
     mostrar();
   }
